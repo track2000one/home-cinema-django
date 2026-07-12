@@ -9,16 +9,8 @@ from django.utils._os import safe_join
 
 
 def serve_media(request, path):
-    """
-    Serve uploaded media files from MEDIA_ROOT.
-
-    Suitable for this small private project.
-    For a large public platform, use S3-compatible storage
-    or a dedicated media server.
-    """
-
     try:
-        file_path = Path(
+        full_path = Path(
             safe_join(
                 str(settings.MEDIA_ROOT),
                 path,
@@ -27,24 +19,21 @@ def serve_media(request, path):
     except Exception as error:
         raise Http404("Invalid media path.") from error
 
-    if not file_path.exists():
+    if not full_path.exists() or not full_path.is_file():
         raise Http404("Media file not found.")
 
-    if not file_path.is_file():
-        raise Http404("Requested media is not a file.")
-
     content_type = (
-        mimetypes.guess_type(file_path.name)[0]
+        mimetypes.guess_type(full_path.name)[0]
         or "application/octet-stream"
     )
 
     response = FileResponse(
-        file_path.open("rb"),
+        full_path.open("rb"),
         content_type=content_type,
     )
 
     response["Content-Disposition"] = (
-        f'inline; filename="{file_path.name}"'
+        f'inline; filename="{full_path.name}"'
     )
 
     return response
