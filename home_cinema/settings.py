@@ -4,19 +4,31 @@ import os
 import dj_database_url
 
 
+# --------------------------------------------------
+# Base directory
+# --------------------------------------------------
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+# --------------------------------------------------
+# Security
+# --------------------------------------------------
+
 SECRET_KEY = os.getenv(
     "DJANGO_SECRET_KEY",
-    "development-only-secret-key",
+    "development-only-secret-key-change-this",
 )
 
 DEBUG = os.getenv(
     "DJANGO_DEBUG",
     "False",
-).lower() == "true"
+).strip().lower() == "true"
 
+
+# --------------------------------------------------
+# Hosts
+# --------------------------------------------------
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -28,6 +40,10 @@ ALLOWED_HOSTS = [
 ]
 
 
+# --------------------------------------------------
+# CSRF trusted origins
+# --------------------------------------------------
+
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
@@ -37,6 +53,10 @@ CSRF_TRUSTED_ORIGINS = [
     if origin.strip()
 ]
 
+
+# --------------------------------------------------
+# Applications
+# --------------------------------------------------
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -48,6 +68,10 @@ INSTALLED_APPS = [
     "movies",
 ]
 
+
+# --------------------------------------------------
+# Middleware
+# --------------------------------------------------
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -61,8 +85,18 @@ MIDDLEWARE = [
 ]
 
 
+# --------------------------------------------------
+# URLs and WSGI
+# --------------------------------------------------
+
 ROOT_URLCONF = "home_cinema.urls"
 
+WSGI_APPLICATION = "home_cinema.wsgi.application"
+
+
+# --------------------------------------------------
+# Templates
+# --------------------------------------------------
 
 TEMPLATES = [
     {
@@ -94,17 +128,25 @@ TEMPLATES = [
 ]
 
 
-WSGI_APPLICATION = "home_cinema.wsgi.application"
-
+# --------------------------------------------------
+# Database
+# --------------------------------------------------
 
 DATABASES = {
     "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'data' / 'db.sqlite3'}",
+        default=(
+            f"sqlite:///"
+            f"{BASE_DIR / 'data' / 'db.sqlite3'}"
+        ),
         conn_max_age=600,
         conn_health_checks=True,
     )
 }
 
+
+# --------------------------------------------------
+# Password validation
+# --------------------------------------------------
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -134,6 +176,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# --------------------------------------------------
+# Internationalization
+# --------------------------------------------------
+
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "Asia/Riyadh"
@@ -142,6 +188,10 @@ USE_I18N = True
 
 USE_TZ = True
 
+
+# --------------------------------------------------
+# Static files
+# --------------------------------------------------
 
 STATIC_URL = "/static/"
 
@@ -168,15 +218,23 @@ STORAGES = {
 }
 
 
+# --------------------------------------------------
+# Media files
+# --------------------------------------------------
+
 MEDIA_URL = "/media/"
 
 MEDIA_ROOT = Path(
     os.getenv(
         "MEDIA_ROOT",
-        BASE_DIR / "media",
+        str(BASE_DIR / "media"),
     )
 )
 
+
+# --------------------------------------------------
+# Authentication redirects
+# --------------------------------------------------
 
 LOGIN_URL = "/accounts/login/"
 
@@ -185,18 +243,59 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 
+# --------------------------------------------------
+# Default primary key
+# --------------------------------------------------
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
+# --------------------------------------------------
+# Railway HTTPS proxy
+# --------------------------------------------------
 
 SECURE_PROXY_SSL_HEADER = (
     "HTTP_X_FORWARDED_PROTO",
     "https",
 )
 
+USE_X_FORWARDED_HOST = True
+
+
+# --------------------------------------------------
+# Secure cookies
+# --------------------------------------------------
+
 SESSION_COOKIE_SECURE = not DEBUG
 
 CSRF_COOKIE_SECURE = not DEBUG
 
+SESSION_COOKIE_HTTPONLY = True
+
+CSRF_COOKIE_HTTPONLY = False
+
+SESSION_COOKIE_SAMESITE = "Lax"
+
+CSRF_COOKIE_SAMESITE = "Lax"
+
+
+# --------------------------------------------------
+# Security headers
+# --------------------------------------------------
+
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
+SECURE_REFERRER_POLICY = "same-origin"
+
 X_FRAME_OPTIONS = "DENY"
+
+
+# --------------------------------------------------
+# Production security
+# --------------------------------------------------
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
