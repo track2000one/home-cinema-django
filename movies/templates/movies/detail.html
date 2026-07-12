@@ -65,7 +65,7 @@
       </div>
 
       {% if movie.video_path or player_source_url %}
-      <section class="cinema-controls" aria-label="Player controls">
+      <section class="cinema-controls" id="cinema-controls" aria-label="Player controls">
 
         <div class="control-row main-control-row">
           <button type="button" class="cinema-button primary" id="play-button">
@@ -244,6 +244,12 @@ document.addEventListener("DOMContentLoaded", function () {
   let subtitleObjectUrl = null;
   let hls = null;
   let lastSavedSecond = -1;
+  let controlsHideTimer = null;
+  let lastPointerMoveTime = 0;
+
+  const controlsPanel = document.getElementById("cinema-controls");
+  const advancedPanel = document.querySelector(".advanced-panel");
+  const CONTROLS_HIDE_DELAY = 3000;
 
   function showMessage(text) {
     message.textContent = text;
@@ -252,6 +258,63 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function hideMessage() {
     message.hidden = true;
+  }
+
+  function clearControlsTimer() {
+    if (controlsHideTimer !== null) {
+      window.clearTimeout(controlsHideTimer);
+      controlsHideTimer = null;
+    }
+  }
+
+  function controlsMustRemainVisible() {
+    if (player.paused || player.ended) {
+      return true;
+    }
+
+    if (advancedPanel && advancedPanel.open) {
+      return true;
+    }
+
+    if (
+      controlsPanel &&
+      (
+        controlsPanel.matches(":hover") ||
+        controlsPanel.contains(document.activeElement)
+      )
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  function hidePlayerControls() {
+    clearControlsTimer();
+
+    if (controlsMustRemainVisible()) {
+      return;
+    }
+
+    stage.classList.add("controls-hidden");
+  }
+
+  function scheduleControlsHide() {
+    clearControlsTimer();
+
+    if (controlsMustRemainVisible()) {
+      return;
+    }
+
+    controlsHideTimer = window.setTimeout(
+      hidePlayerControls,
+      CONTROLS_HIDE_DELAY
+    );
+  }
+
+  function showPlayerControls() {
+    stage.classList.remove("controls-hidden");
+    scheduleControlsHide();
   }
 
   function formatTime(seconds) {
@@ -449,11 +512,28 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  controls.centerPlay.addEventListener("click", togglePlayback);
-  controls.play.addEventListener("click", togglePlayback);
+  controls.centerPlay.addEventListener("click", function (event) {
+    event.stopPropagation();
+    togglePlayback();
+  });
+
+  controls.play.addEventListener("click", function (event) {
+    event.stopPropagation();
+    togglePlayback();
+  });
+
   player.addEventListener("click", togglePlayback);
-  player.addEventListener("play", updatePlayButtons);
-  player.addEventListener("pause", updatePlayButtons);
+
+  player.addEventListener("play", function () {
+    updatePlayButtons();
+    showPlayerControls();
+  });
+
+  player.addEventListener("pause", function () {
+    updatePlayButtons();
+    clearControlsTimer();
+    stage.classList.remove("controls-hidden");
+  });
 
   controls.backward.addEventListener("click", function () {
     player.currentTime = Math.max(0, player.currentTime - 10);
@@ -508,6 +588,8 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   player.addEventListener("ended", function () {
+    clearControlsTimer();
+    stage.classList.remove("controls-hidden");
     localStorage.removeItem(player.dataset.resumeKey);
   });
 
@@ -611,7 +693,63 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  stage.addEventListener("mousemove", function () {
+    const now = Date.now();
+
+    if (now - lastPointerMoveTime < 80) {
+      return;
+    }
+
+    lastPointerMoveTime = now;
+    showPlayerControls();
+  });
+
+  stage.addEventListener("mouseenter", showPlayerControls);
+
+  stage.addEventListener(
+    "touchstart",
+    showPlayerControls,
+    { passive: true }
+  );
+
+  stage.addEventListener("pointerdown", showPlayerControls);
+
+  stage.addEventListener("mouseleave", function () {
+    if (!player.paused && !player.ended) {
+      hidePlayerControls();
+    }
+  });
+
+  if (controlsPanel) {
+    controlsPanel.addEventListener("mouseenter", clearControlsTimer);
+    controlsPanel.addEventListener("mouseleave", scheduleControlsHide);
+    controlsPanel.addEventListener("focusin", clearControlsTimer);
+    controlsPanel.addEventListener("focusout", scheduleControlsHide);
+    controlsPanel.addEventListener("click", function (event) {
+      event.stopPropagation();
+      showPlayerControls();
+    });
+  }
+
+  if (advancedPanel) {
+    advancedPanel.addEventListener("toggle", function () {
+      stage.classList.remove("controls-hidden");
+
+      if (advancedPanel.open) {
+        clearControlsTimer();
+      } else {
+        scheduleControlsHide();
+      }
+    });
+  }
+
+  document.addEventListener("fullscreenchange", function () {
+    showPlayerControls();
+  });
+
   window.addEventListener("beforeunload", function () {
+    clearControlsTimer();
+
     localStorage.setItem(
       player.dataset.resumeKey,
       String(player.currentTime)
@@ -629,6 +767,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeSource();
   applyPictureFilters();
   updatePlayButtons();
+  stage.classList.remove("controls-hidden");
 });
 </script>
 {% endif %}

@@ -1,61 +1,24 @@
-HOME CINEMA - DJANGO
-====================
+طريقة التركيب
 
-Included features:
-- Login page
-- Movie library
-- Search and genre filtering
-- Movie details page
-- HTML5 video streaming with seek support
-- Django admin panel
-- Automatic folder scanning
-- Local network access
-- English-only interface and source text
+1) استبدل الملف:
+   movies/templates/movies/detail.html
 
-IMPORTANT
----------
-Django cannot run directly from a USB drive connected to a router through FTP.
-Run this project on a Windows PC, Mini PC, Raspberry Pi, or NAS.
-The movie drive should preferably be connected directly to the server device.
+   بالملف detail.html الموجود هنا.
 
-QUICK START
------------
-1. Install Python 3.11 or newer.
-2. Enable "Add Python to PATH" during installation.
-3. Extract this ZIP file.
-4. Run start_server.bat.
-5. Run create_admin.bat once.
-6. Open:
-   http://127.0.0.1:8000
+2) افتح:
+   static/css/app.css
 
-NETWORK ACCESS
---------------
-Find the server PC IP address with:
+   وأضف محتوى app_css_auto_hide.css كاملًا في نهاية الملف.
 
-ipconfig
+3) ارفع التعديلات:
+   git add .
+   git commit -m "Auto hide cinema controls"
+   git push
 
-Then open from another device:
+4) بعد نجاح Railway Deployment افتح الصفحة بـ Ctrl + F5.
 
-http://192.168.1.4:8000
-
-Replace 192.168.1.4 with the actual IPv4 address of the server PC.
-
-ADMIN PANEL
------------
-http://127.0.0.1:8000/admin/
-
-ADDING MOVIES
--------------
-Option 1:
-Add movies manually from the Django admin panel.
-
-Option 2:
-Edit the folder path in scan_movies_example.bat and run it.
-
-Example:
-E:\Movies
-
-SECURITY
---------
-Use this project only inside your private home network.
-Do not forward port 8000 to the public internet.
+السلوك:
+- أثناء التشغيل تختفي الأدوات بعد 3 ثوانٍ.
+- تظهر عند تحريك الفأرة أو لمس الشاشة.
+- تبقى ظاهرة عند الإيقاف المؤقت.
+- تبقى ظاهرة عند فتح إعدادات الصورة والترجمة.

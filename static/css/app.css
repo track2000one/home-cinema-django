@@ -1146,3 +1146,271 @@ video::cue {
     padding: 16px;
   }
 }
+/* =========================================
+   Auto-hide professional player controls
+   ========================================= */
+
+.cinema-stage {
+  position: relative;
+}
+
+/* وضع شريط التحكم فوق أسفل الفيديو بدل بقائه كمساحة ثابتة */
+.cinema-controls {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+
+  max-height: 65vh;
+  overflow-y: auto;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(5, 5, 7, 0.98) 0%,
+      rgba(10, 10, 13, 0.92) 68%,
+      rgba(10, 10, 13, 0.25) 100%
+    );
+
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease,
+    transform 0.3s ease;
+}
+
+/* إخفاء الشريط أثناء التشغيل */
+.cinema-stage.controls-hidden .cinema-controls {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(100%);
+}
+
+/* إخفاء مؤشر الفأرة أيضًا */
+.cinema-stage.controls-hidden {
+  cursor: none;
+}
+
+/* إبقاء المؤشر ظاهرًا فوق عناصر التحكم */
+.cinema-controls,
+.cinema-controls * {
+  cursor: default;
+}
+
+.cinema-controls button,
+.cinema-controls input,
+.cinema-controls select,
+.cinema-controls summary,
+.cinema-controls label {
+  cursor: pointer;
+}
+
+/* تدرج سفلي بسيط عند ظهور أدوات التحكم */
+.cinema-stage::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 15;
+
+  height: 190px;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.68),
+      transparent
+    );
+
+  opacity: 1;
+  pointer-events: none;
+
+  transition: opacity 0.3s ease;
+}
+
+.cinema-stage.controls-hidden::after {
+  opacity: 0;
+}
+
+/* الفيديو يملأ مساحة المشغل */
+.cinema-screen {
+  width: 100%;
+  min-height: 0;
+}
+
+/* في وضع ملء الشاشة */
+.cinema-stage:fullscreen {
+  display: block;
+}
+
+.cinema-stage:fullscreen .cinema-screen {
+  width: 100vw;
+  height: 100vh;
+}
+
+.cinema-stage:fullscreen .movie-player {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* الجوال والآيباد */
+@media (max-width: 650px) {
+  .cinema-controls {
+    max-height: 72vh;
+    padding: 10px;
+  }
+
+  .cinema-stage::after {
+    height: 240px;
+  }
+}
+/* ==========================================================
+   Home Cinema — Auto-hide player controls
+   ضع هذا القسم في نهاية static/css/app.css
+   ========================================================== */
+
+.cinema-stage {
+  position: relative;
+}
+
+/* شريط الأدوات يطفو فوق أسفل الفيديو */
+.cinema-controls {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+
+  max-height: min(68vh, 620px);
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(5, 5, 7, 0.99) 0%,
+      rgba(10, 10, 13, 0.95) 72%,
+      rgba(10, 10, 13, 0.30) 100%
+    );
+
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+
+  transition:
+    opacity 0.28s ease,
+    visibility 0.28s ease,
+    transform 0.28s ease;
+}
+
+/* إخفاء أدوات التحكم تلقائيًا أثناء التشغيل */
+.cinema-stage.controls-hidden .cinema-controls {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(100%);
+}
+
+/* إخفاء مؤشر الفأرة مع الشريط */
+.cinema-stage.controls-hidden {
+  cursor: none;
+}
+
+/* منع بقاء المؤشر مخفيًا فوق عناصر التحكم */
+.cinema-controls {
+  cursor: default;
+}
+
+.cinema-controls button,
+.cinema-controls input,
+.cinema-controls select,
+.cinema-controls summary,
+.cinema-controls label {
+  cursor: pointer;
+}
+
+/* تدرج سفلي يظهر مع الأدوات */
+.cinema-stage::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+
+  height: 210px;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.72),
+      transparent
+    );
+
+  opacity: 1;
+  pointer-events: none;
+
+  transition: opacity 0.28s ease;
+}
+
+.cinema-stage.controls-hidden::after {
+  opacity: 0;
+}
+
+/* منع الشريط من إضافة مساحة سوداء أسفل الفيديو */
+.cinema-screen {
+  width: 100%;
+  min-height: 0;
+}
+
+/* ملء الشاشة */
+.cinema-stage:fullscreen {
+  width: 100vw;
+  height: 100vh;
+
+  display: block;
+
+  background: #000000;
+  border: 0;
+  border-radius: 0;
+}
+
+.cinema-stage:fullscreen .cinema-screen {
+  width: 100vw;
+  height: 100vh;
+  aspect-ratio: auto;
+}
+
+.cinema-stage:fullscreen .movie-player {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* إبقاء زر التشغيل الأوسط فوق الفيديو */
+.center-play-button {
+  z-index: 25;
+}
+
+/* الجوال والآيباد */
+@media (max-width: 650px) {
+  .cinema-controls {
+    max-height: 76vh;
+    padding: 10px;
+  }
+
+  .cinema-stage::after {
+    height: 260px;
+  }
+
+  .cinema-stage.controls-hidden {
+    cursor: default;
+  }
+}
