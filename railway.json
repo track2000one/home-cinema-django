@@ -6,7 +6,8 @@
   },
   "deploy": {
     "preDeployCommand": [
-      "python manage.py migrate"
+      "python manage.py migrate",
+      "python manage.py ensure_superuser"
     ],
     "startCommand": "gunicorn home_cinema.wsgi:application --bind 0.0.0.0:$PORT",
     "restartPolicyType": "ON_FAILURE",
