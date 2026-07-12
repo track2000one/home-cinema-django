@@ -1,415 +1,641 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}
-{{ movie.title }}
-{% endblock %}
+{% block title %}{{ movie.title }}{% endblock %}
 
 {% block content %}
+<section class="detail-page cinema-detail">
 
-<section class="detail-page">
-
-  <a
-    class="back-link"
-    href="{% url 'movies:library' %}"
-  >
+  <a class="back-link" href="{% url 'movies:library' %}">
     ← Back to library
   </a>
 
-  {% if movie.google_drive_embed_url %}
+  <div class="cinema-layout" id="cinema-layout">
 
-  <div class="drive-toolbar">
+    <main class="cinema-stage" id="cinema-stage">
 
-    <button
-      type="button"
-      class="player-control-button"
-      data-player-size="small"
-    >
-      Small
-    </button>
+      <div class="cinema-screen" id="cinema-screen">
 
-    <button
-      type="button"
-      class="player-control-button"
-      data-player-size="medium"
-    >
-      Medium
-    </button>
+        {% if movie.video_path or player_source_url %}
+        <video
+          id="movie-player"
+          class="movie-player"
+          preload="metadata"
+          playsinline
+          crossorigin="anonymous"
+          {% if movie.poster %}poster="{{ movie.poster.url }}"{% endif %}
+          data-source-type="{{ player_source_type }}"
+          data-resume-key="home-cinema-{{ movie.pk }}"
+        >
+          {% if movie.video_path %}
+          <source
+            src="{% url 'movies:stream' movie.pk %}"
+            type="video/mp4"
+          >
+          {% elif player_source_type == "mp4" %}
+          <source
+            src="{{ player_source_url }}"
+            type="video/mp4"
+          >
+          {% endif %}
 
-    <button
-      type="button"
-      class="player-control-button active"
-      data-player-size="large"
-    >
-      Large
-    </button>
+          {% if movie.converted_subtitle %}
+          <track
+            src="{{ movie.converted_subtitle.url }}"
+            kind="subtitles"
+            srclang="ar"
+            label="العربية"
+            default
+          >
+          {% endif %}
 
-    <button
-      type="button"
-      class="player-control-button"
-      data-player-size="theater"
-    >
-      Theater
-    </button>
+          Your browser does not support HTML5 video.
+        </video>
 
-    <button
-      type="button"
-      class="player-control-button"
-      id="fit-screen-button"
-    >
-      Fit screen
-    </button>
+        <button
+          class="center-play-button"
+          id="center-play-button"
+          type="button"
+          aria-label="Play or pause"
+        >
+          ▶
+        </button>
 
-    <button
-      type="button"
-      class="player-control-button"
-      id="fullscreen-button"
-    >
-      Fullscreen
-    </button>
+        <div class="player-message" id="player-message" hidden></div>
+        {% else %}
+        <div class="video-error">
+          No video source has been configured.
+        </div>
+        {% endif %}
 
-  </div>
+      </div>
 
-  {% endif %}
+      {% if movie.video_path or player_source_url %}
+      <section class="cinema-controls" aria-label="Player controls">
 
-  <div
-    class="detail-grid"
-    id="detail-grid"
-  >
+        <div class="control-row main-control-row">
+          <button type="button" class="cinema-button primary" id="play-button">
+            Play
+          </button>
 
-    <div
-      class="video-box"
-      id="video-box"
-    >
+          <button type="button" class="cinema-button" id="backward-button">
+            −10s
+          </button>
 
-      {% if movie.google_drive_embed_url %}
+          <button type="button" class="cinema-button" id="forward-button">
+            +10s
+          </button>
 
-      <div
-        class="drive-resize-container size-large"
-        id="drive-resize-container"
-      >
+          <label class="volume-control">
+            <span>Volume</span>
+            <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1">
+          </label>
 
-        <iframe
-          id="drive-player"
-          class="drive-player"
-          src="{{ movie.google_drive_embed_url }}"
-          title="{{ movie.title }}"
-          allow="autoplay; fullscreen"
-          allowfullscreen
-          loading="eager"
-          referrerpolicy="strict-origin-when-cross-origin"
-        ></iframe>
+          <select id="speed-select" class="cinema-select" aria-label="Playback speed">
+            <option value="0.5">0.5×</option>
+            <option value="0.75">0.75×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.25">1.25×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
 
-        <div class="resize-help">
-          Drag the lower-right corner to resize
+          <button type="button" class="cinema-button" id="pip-button">
+            Picture in Picture
+          </button>
+
+          <button type="button" class="cinema-button" id="theater-button">
+            Theater
+          </button>
+
+          <button type="button" class="cinema-button" id="fullscreen-button">
+            Fullscreen
+          </button>
         </div>
 
-      </div>
+        <div class="progress-row">
+          <span id="current-time">00:00</span>
+          <input
+            id="progress-slider"
+            class="progress-slider"
+            type="range"
+            min="0"
+            max="100"
+            step="0.01"
+            value="0"
+            aria-label="Video progress"
+          >
+          <span id="duration-time">00:00</span>
+        </div>
 
-      {% elif movie.video_path %}
+        <details class="advanced-panel">
+          <summary>Picture and subtitle settings</summary>
 
-      <video
-        id="movie-player"
-        controls
-        preload="metadata"
-        playsinline
-        {% if movie.poster %}
-        poster="{{ movie.poster.url }}"
-        {% endif %}
-      >
+          <div class="settings-grid">
+            <label>
+              <span>Brightness <output id="brightness-output">100%</output></span>
+              <input id="brightness-slider" type="range" min="50" max="180" value="100">
+            </label>
 
-        <source
-          src="{% url 'movies:stream' movie.pk %}"
-        >
+            <label>
+              <span>Contrast <output id="contrast-output">100%</output></span>
+              <input id="contrast-slider" type="range" min="50" max="180" value="100">
+            </label>
 
-        {% if movie.converted_subtitle %}
-        <track
-          src="{{ movie.converted_subtitle.url }}"
-          kind="subtitles"
-          srclang="ar"
-          label="Arabic"
-          default
-        >
-        {% endif %}
+            <label>
+              <span>Color saturation <output id="saturation-output">100%</output></span>
+              <input id="saturation-slider" type="range" min="0" max="200" value="100">
+            </label>
 
-        Your browser does not support HTML5 video.
+            <label>
+              <span>Color tone <output id="hue-output">0°</output></span>
+              <input id="hue-slider" type="range" min="-90" max="90" value="0">
+            </label>
+          </div>
 
-      </video>
+          <div class="subtitle-tools">
+            <button type="button" class="cinema-button" id="subtitle-toggle">
+              Subtitles on/off
+            </button>
 
-      {% else %}
+            <label class="subtitle-upload">
+              <span>Load SRT or VTT from this device</span>
+              <input
+                id="subtitle-file"
+                type="file"
+                accept=".srt,.vtt,text/vtt,application/x-subrip"
+              >
+            </label>
 
-      <div class="video-error">
-        No video source has been configured.
-      </div>
+            <button type="button" class="cinema-button" id="reset-picture-button">
+              Reset picture
+            </button>
+          </div>
+        </details>
 
+      </section>
       {% endif %}
 
-    </div>
+    </main>
 
-    <aside
-      class="movie-info"
-      id="movie-info"
-    >
-
-      <span class="kicker">
-        {{ movie.genre|default:"Movie" }}
-      </span>
-
-      <h1>
-        {{ movie.title }}
-      </h1>
-
-      <div class="year">
-        {{ movie.year|default:"Year not specified" }}
-      </div>
-
-      <p>
-        {{ movie.description|default:"No description available." }}
-      </p>
-
-      {% if movie.google_drive_embed_url %}
-
-      <div class="source-status drive-source">
-        Google Drive video
-      </div>
-
-      <p class="source-note">
-        You can resize the player using the buttons above
-        or drag its lower-right corner.
-      </p>
-
-      {% elif movie.video_path %}
+    <aside class="movie-info cinema-info">
+      <span class="kicker">{{ movie.genre|default:"Movie" }}</span>
+      <h1>{{ movie.title }}</h1>
+      <div class="year">{{ movie.year|default:"Year not specified" }}</div>
+      <p>{{ movie.description|default:"No description available." }}</p>
 
       <div class="source-status local-source">
-        Local video
+        {{ movie.source_label }}
       </div>
 
-        {% if movie.converted_subtitle %}
-
-        <div class="subtitle-status">
-          Arabic subtitle available
-        </div>
-
-        {% else %}
-
-        <div class="subtitle-status subtitle-unavailable">
-          No subtitle available
-        </div>
-
-        {% endif %}
-
+      {% if movie.converted_subtitle %}
+      <div class="subtitle-status">Arabic subtitle available</div>
+      {% else %}
+      <div class="subtitle-status subtitle-unavailable">
+        You can load an SRT/VTT subtitle while watching
+      </div>
       {% endif %}
 
+      {% if movie.google_drive_url %}
+      <p class="source-note">
+        Google Drive is being used without its embedded player, so its
+        external-open button no longer appears. For stable seeking and
+        mobile playback, migrate the file to a direct MP4 or HLS host.
+      </p>
+      {% endif %}
     </aside>
 
   </div>
-
 </section>
 
-
-{% if movie.google_drive_embed_url %}
+{% if movie.video_path or player_source_url %}
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.13/dist/hls.min.js"></script>
 
 <script>
-document.addEventListener(
-  "DOMContentLoaded",
-  function () {
-    const resizeContainer = document.getElementById(
-      "drive-resize-container"
-    );
+document.addEventListener("DOMContentLoaded", function () {
+  const player = document.getElementById("movie-player");
+  const screen = document.getElementById("cinema-screen");
+  const stage = document.getElementById("cinema-stage");
+  const layout = document.getElementById("cinema-layout");
+  const message = document.getElementById("player-message");
+  const sourceType = player.dataset.sourceType;
+  const remoteSource = "{{ player_source_url|escapejs }}";
 
-    const videoBox = document.getElementById(
-      "video-box"
-    );
+  const controls = {
+    centerPlay: document.getElementById("center-play-button"),
+    play: document.getElementById("play-button"),
+    backward: document.getElementById("backward-button"),
+    forward: document.getElementById("forward-button"),
+    volume: document.getElementById("volume-slider"),
+    speed: document.getElementById("speed-select"),
+    pip: document.getElementById("pip-button"),
+    theater: document.getElementById("theater-button"),
+    fullscreen: document.getElementById("fullscreen-button"),
+    progress: document.getElementById("progress-slider"),
+    currentTime: document.getElementById("current-time"),
+    duration: document.getElementById("duration-time"),
+    brightness: document.getElementById("brightness-slider"),
+    contrast: document.getElementById("contrast-slider"),
+    saturation: document.getElementById("saturation-slider"),
+    hue: document.getElementById("hue-slider"),
+    brightnessOutput: document.getElementById("brightness-output"),
+    contrastOutput: document.getElementById("contrast-output"),
+    saturationOutput: document.getElementById("saturation-output"),
+    hueOutput: document.getElementById("hue-output"),
+    subtitleToggle: document.getElementById("subtitle-toggle"),
+    subtitleFile: document.getElementById("subtitle-file"),
+    resetPicture: document.getElementById("reset-picture-button")
+  };
 
-    const detailGrid = document.getElementById(
-      "detail-grid"
-    );
+  let subtitleObjectUrl = null;
+  let hls = null;
+  let lastSavedSecond = -1;
 
-    const movieInfo = document.getElementById(
-      "movie-info"
-    );
+  function showMessage(text) {
+    message.textContent = text;
+    message.hidden = false;
+  }
 
-    const fullscreenButton = document.getElementById(
-      "fullscreen-button"
-    );
+  function hideMessage() {
+    message.hidden = true;
+  }
 
-    const fitScreenButton = document.getElementById(
-      "fit-screen-button"
-    );
+  function formatTime(seconds) {
+    if (!Number.isFinite(seconds)) return "00:00";
 
-    const sizeButtons = document.querySelectorAll(
-      "[data-player-size]"
-    );
+    const total = Math.max(0, Math.floor(seconds));
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const secs = total % 60;
 
-    if (!resizeContainer) {
-      return;
+    if (hours > 0) {
+      return [
+        String(hours).padStart(2, "0"),
+        String(minutes).padStart(2, "0"),
+        String(secs).padStart(2, "0")
+      ].join(":");
     }
 
-    function removeSizeClasses() {
-      resizeContainer.classList.remove(
-        "size-small",
-        "size-medium",
-        "size-large",
-        "size-theater",
-        "size-fit-screen"
-      );
-    }
+    return [
+      String(minutes).padStart(2, "0"),
+      String(secs).padStart(2, "0")
+    ].join(":");
+  }
 
-    function removeActiveButtons() {
-      sizeButtons.forEach(
-        function (button) {
-          button.classList.remove("active");
-        }
-      );
-    }
+  function updatePlayButtons() {
+    const isPaused = player.paused;
+    controls.play.textContent = isPaused ? "Play" : "Pause";
+    controls.centerPlay.textContent = isPaused ? "▶" : "❚❚";
+    screen.classList.toggle("is-playing", !isPaused);
+  }
 
-    function applySize(size, activeButton) {
-      removeSizeClasses();
-      removeActiveButtons();
-
-      resizeContainer.style.width = "";
-      resizeContainer.style.height = "";
-
-      resizeContainer.classList.add(
-        "size-" + size
-      );
-
-      if (activeButton) {
-        activeButton.classList.add("active");
-      }
-
-      if (size === "theater") {
-        detailGrid.classList.add(
-          "theater-layout"
-        );
-
-        movieInfo.classList.add(
-          "theater-info"
-        );
+  async function togglePlayback() {
+    try {
+      if (player.paused) {
+        await player.play();
       } else {
-        detailGrid.classList.remove(
-          "theater-layout"
-        );
-
-        movieInfo.classList.remove(
-          "theater-info"
-        );
+        player.pause();
       }
+    } catch (error) {
+      showMessage("Playback was blocked. Tap Play again.");
     }
-
-    sizeButtons.forEach(
-      function (button) {
-        button.addEventListener(
-          "click",
-          function () {
-            const size = button.dataset.playerSize;
-
-            applySize(
-              size,
-              button
-            );
-          }
-        );
-      }
-    );
-
-    if (fitScreenButton) {
-      fitScreenButton.addEventListener(
-        "click",
-        function () {
-          removeSizeClasses();
-          removeActiveButtons();
-
-          detailGrid.classList.add(
-            "theater-layout"
-          );
-
-          movieInfo.classList.add(
-            "theater-info"
-          );
-
-          resizeContainer.style.width =
-            "calc(100vw - 40px)";
-
-          resizeContainer.style.height =
-            "calc(100vh - 190px)";
-
-          resizeContainer.classList.add(
-            "size-fit-screen"
-          );
-        }
-      );
-    }
-
-    if (fullscreenButton) {
-      fullscreenButton.addEventListener(
-        "click",
-        async function () {
-          try {
-            if (!document.fullscreenElement) {
-              await videoBox.requestFullscreen();
-            } else {
-              await document.exitFullscreen();
-            }
-          } catch (error) {
-            console.error(
-              "Fullscreen failed:",
-              error
-            );
-          }
-        }
-      );
-    }
-
-    document.addEventListener(
-      "fullscreenchange",
-      function () {
-        if (document.fullscreenElement) {
-          videoBox.classList.add(
-            "is-fullscreen"
-          );
-        } else {
-          videoBox.classList.remove(
-            "is-fullscreen"
-          );
-        }
-      }
-    );
   }
-);
-</script>
 
-{% endif %}
+  function applyPictureFilters() {
+    const brightness = controls.brightness.value;
+    const contrast = controls.contrast.value;
+    const saturation = controls.saturation.value;
+    const hue = controls.hue.value;
 
+    player.style.filter = [
+      `brightness(${brightness}%)`,
+      `contrast(${contrast}%)`,
+      `saturate(${saturation}%)`,
+      `hue-rotate(${hue}deg)`
+    ].join(" ");
 
-{% if movie.video_path and not movie.google_drive_embed_url %}
+    controls.brightnessOutput.value = brightness + "%";
+    controls.contrastOutput.value = contrast + "%";
+    controls.saturationOutput.value = saturation + "%";
+    controls.hueOutput.value = hue + "°";
+  }
 
-<script>
-document.addEventListener(
-  "DOMContentLoaded",
-  function () {
-    const player = document.getElementById(
-      "movie-player"
-    );
+  function srtToVtt(text) {
+    const normalized = text
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n");
 
-    if (!player) {
+    const lines = normalized.split("\n");
+    const converted = lines
+      .filter(function (line) {
+        return !/^\s*\d+\s*$/.test(line);
+      })
+      .map(function (line) {
+        return line.includes("-->") ? line.replace(/,/g, ".") : line;
+      })
+      .join("\n");
+
+    return "WEBVTT\n\n" + converted.trim() + "\n";
+  }
+
+  function enableFirstSubtitleTrack() {
+    if (!player.textTracks) return;
+
+    for (let index = 0; index < player.textTracks.length; index += 1) {
+      player.textTracks[index].mode = index === 0 ? "showing" : "disabled";
+    }
+  }
+
+  function toggleSubtitles() {
+    if (!player.textTracks || player.textTracks.length === 0) {
+      showMessage("No subtitle track is loaded.");
       return;
     }
 
-    player.addEventListener(
-      "loadedmetadata",
-      function () {
-        if (
-          player.textTracks &&
-          player.textTracks.length > 0
-        ) {
-          player.textTracks[0].mode = "showing";
-        }
-      }
-    );
+    const shouldShow = player.textTracks[0].mode !== "showing";
+
+    for (let index = 0; index < player.textTracks.length; index += 1) {
+      player.textTracks[index].mode = shouldShow ? "showing" : "disabled";
+    }
+
+    controls.subtitleToggle.textContent = shouldShow
+      ? "Subtitles: on"
+      : "Subtitles: off";
   }
-);
+
+  function addLocalSubtitle(file, content) {
+    if (subtitleObjectUrl) {
+      URL.revokeObjectURL(subtitleObjectUrl);
+    }
+
+    const isSrt = file.name.toLowerCase().endsWith(".srt");
+    const vttContent = isSrt ? srtToVtt(content) : content;
+    const blob = new Blob([vttContent], { type: "text/vtt" });
+    subtitleObjectUrl = URL.createObjectURL(blob);
+
+    const existingLocalTrack = player.querySelector("track[data-local-subtitle]");
+    if (existingLocalTrack) {
+      existingLocalTrack.remove();
+    }
+
+    const track = document.createElement("track");
+    track.kind = "subtitles";
+    track.label = file.name;
+    track.srclang = "ar";
+    track.src = subtitleObjectUrl;
+    track.default = true;
+    track.dataset.localSubtitle = "true";
+    player.appendChild(track);
+
+    track.addEventListener("load", function () {
+      for (let index = 0; index < player.textTracks.length; index += 1) {
+        player.textTracks[index].mode = "disabled";
+      }
+
+      if (player.textTracks.length > 0) {
+        player.textTracks[player.textTracks.length - 1].mode = "showing";
+      }
+
+      controls.subtitleToggle.textContent = "Subtitles: on";
+      showMessage("Subtitle loaded successfully.");
+      window.setTimeout(hideMessage, 2200);
+    });
+  }
+
+  function initializeSource() {
+    if (sourceType !== "hls") {
+      return;
+    }
+
+    if (player.canPlayType("application/vnd.apple.mpegurl")) {
+      player.src = remoteSource;
+      return;
+    }
+
+    if (window.Hls && window.Hls.isSupported()) {
+      hls = new window.Hls({
+        enableWorker: true,
+        lowLatencyMode: false
+      });
+
+      hls.loadSource(remoteSource);
+      hls.attachMedia(player);
+
+      hls.on(window.Hls.Events.ERROR, function (_, data) {
+        if (!data.fatal) return;
+
+        if (data.type === window.Hls.ErrorTypes.NETWORK_ERROR) {
+          hls.startLoad();
+        } else if (data.type === window.Hls.ErrorTypes.MEDIA_ERROR) {
+          hls.recoverMediaError();
+        } else {
+          hls.destroy();
+          showMessage("The HLS stream could not be played.");
+        }
+      });
+
+      return;
+    }
+
+    showMessage("This browser does not support HLS playback.");
+  }
+
+  function restorePlaybackPosition() {
+    const saved = Number(localStorage.getItem(player.dataset.resumeKey));
+
+    if (
+      Number.isFinite(saved) &&
+      saved > 5 &&
+      Number.isFinite(player.duration) &&
+      saved < player.duration - 10
+    ) {
+      player.currentTime = saved;
+      showMessage("Playback resumed from your previous position.");
+      window.setTimeout(hideMessage, 2400);
+    }
+  }
+
+  controls.centerPlay.addEventListener("click", togglePlayback);
+  controls.play.addEventListener("click", togglePlayback);
+  player.addEventListener("click", togglePlayback);
+  player.addEventListener("play", updatePlayButtons);
+  player.addEventListener("pause", updatePlayButtons);
+
+  controls.backward.addEventListener("click", function () {
+    player.currentTime = Math.max(0, player.currentTime - 10);
+  });
+
+  controls.forward.addEventListener("click", function () {
+    player.currentTime = Math.min(
+      Number.isFinite(player.duration) ? player.duration : player.currentTime + 10,
+      player.currentTime + 10
+    );
+  });
+
+  controls.volume.addEventListener("input", function () {
+    player.volume = Number(controls.volume.value);
+    player.muted = player.volume === 0;
+  });
+
+  controls.speed.addEventListener("change", function () {
+    player.playbackRate = Number(controls.speed.value);
+  });
+
+  controls.progress.addEventListener("input", function () {
+    if (!Number.isFinite(player.duration)) return;
+    player.currentTime = (
+      Number(controls.progress.value) / 100
+    ) * player.duration;
+  });
+
+  player.addEventListener("loadedmetadata", function () {
+    controls.duration.textContent = formatTime(player.duration);
+    restorePlaybackPosition();
+    enableFirstSubtitleTrack();
+  });
+
+  player.addEventListener("timeupdate", function () {
+    controls.currentTime.textContent = formatTime(player.currentTime);
+
+    if (Number.isFinite(player.duration) && player.duration > 0) {
+      controls.progress.value = (
+        player.currentTime / player.duration
+      ) * 100;
+    }
+
+    const currentSecond = Math.floor(player.currentTime);
+    if (currentSecond !== lastSavedSecond && currentSecond % 5 === 0) {
+      localStorage.setItem(
+        player.dataset.resumeKey,
+        String(player.currentTime)
+      );
+      lastSavedSecond = currentSecond;
+    }
+  });
+
+  player.addEventListener("ended", function () {
+    localStorage.removeItem(player.dataset.resumeKey);
+  });
+
+  player.addEventListener("error", function () {
+    showMessage(
+      "The video source could not be loaded. Check that the URL is direct, public, and supports browser range/CORS requests."
+    );
+  });
+
+  controls.fullscreen.addEventListener("click", async function () {
+    try {
+      if (!document.fullscreenElement) {
+        await stage.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (error) {
+      showMessage("Fullscreen is not available in this browser.");
+    }
+  });
+
+  controls.theater.addEventListener("click", function () {
+    layout.classList.toggle("theater-mode");
+    controls.theater.classList.toggle("active");
+  });
+
+  controls.pip.addEventListener("click", async function () {
+    try {
+      if (!document.pictureInPictureEnabled || player.disablePictureInPicture) {
+        throw new Error("Unavailable");
+      }
+
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+      } else {
+        await player.requestPictureInPicture();
+      }
+    } catch (error) {
+      showMessage("Picture in Picture is not supported on this device.");
+    }
+  });
+
+  [
+    controls.brightness,
+    controls.contrast,
+    controls.saturation,
+    controls.hue
+  ].forEach(function (control) {
+    control.addEventListener("input", applyPictureFilters);
+  });
+
+  controls.resetPicture.addEventListener("click", function () {
+    controls.brightness.value = 100;
+    controls.contrast.value = 100;
+    controls.saturation.value = 100;
+    controls.hue.value = 0;
+    applyPictureFilters();
+  });
+
+  controls.subtitleToggle.addEventListener("click", toggleSubtitles);
+
+  controls.subtitleFile.addEventListener("change", function () {
+    const file = controls.subtitleFile.files[0];
+    if (!file) return;
+
+    const validExtension = /\.(srt|vtt)$/i.test(file.name);
+    if (!validExtension) {
+      showMessage("Choose an SRT or VTT subtitle file.");
+      controls.subtitleFile.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function () {
+      addLocalSubtitle(file, String(reader.result || ""));
+    };
+    reader.onerror = function () {
+      showMessage("The subtitle file could not be read.");
+    };
+    reader.readAsText(file, "UTF-8");
+  });
+
+  document.addEventListener("keydown", function (event) {
+    const target = event.target;
+    if (target && ["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName)) {
+      return;
+    }
+
+    if (event.code === "Space") {
+      event.preventDefault();
+      togglePlayback();
+    } else if (event.code === "ArrowLeft") {
+      player.currentTime = Math.max(0, player.currentTime - 10);
+    } else if (event.code === "ArrowRight") {
+      player.currentTime = Math.min(
+        player.duration || player.currentTime + 10,
+        player.currentTime + 10
+      );
+    } else if (event.key.toLowerCase() === "f") {
+      controls.fullscreen.click();
+    }
+  });
+
+  window.addEventListener("beforeunload", function () {
+    localStorage.setItem(
+      player.dataset.resumeKey,
+      String(player.currentTime)
+    );
+
+    if (subtitleObjectUrl) {
+      URL.revokeObjectURL(subtitleObjectUrl);
+    }
+
+    if (hls) {
+      hls.destroy();
+    }
+  });
+
+  initializeSource();
+  applyPictureFilters();
+  updatePlayButtons();
+});
 </script>
-
 {% endif %}
-
 {% endblock %}

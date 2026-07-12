@@ -17,6 +17,7 @@ class MovieAdmin(admin.ModelAdmin):
 
     list_filter = (
         "featured",
+        "video_type",
         "genre",
         "year",
     )
@@ -26,6 +27,10 @@ class MovieAdmin(admin.ModelAdmin):
         "description",
         "genre",
     )
+
+    prepopulated_fields = {
+        "slug": ("title",),
+    }
 
     readonly_fields = (
         "converted_subtitle",
@@ -49,20 +54,21 @@ class MovieAdmin(admin.ModelAdmin):
         (
             "Poster",
             {
-                "fields": (
-                    "poster",
-                )
+                "fields": ("poster",)
             },
         ),
         (
             "Video source",
             {
                 "description": (
-                    "Enter either a local video path "
-                    "or a Google Drive sharing URL."
+                    "Configure only one source. For Railway, a direct MP4 "
+                    "or HLS URL is recommended. Google Drive is transitional "
+                    "and may reject large or heavily viewed files."
                 ),
                 "fields": (
                     "video_path",
+                    "video_url",
+                    "video_type",
                     "google_drive_url",
                 ),
             },
@@ -71,8 +77,8 @@ class MovieAdmin(admin.ModelAdmin):
             "Subtitle",
             {
                 "description": (
-                    "Subtitle files work with local videos. "
-                    "SRT files are converted automatically to VTT."
+                    "Upload SRT or VTT. SRT is converted automatically "
+                    "to WebVTT."
                 ),
                 "fields": (
                     "subtitle",
@@ -83,28 +89,15 @@ class MovieAdmin(admin.ModelAdmin):
         (
             "System information",
             {
-                "fields": (
-                    "created_at",
-                )
+                "fields": ("created_at",)
             },
         ),
     )
 
-    @admin.display(
-        description="Video source",
-    )
+    @admin.display(description="Video source")
     def video_source(self, obj):
-        if obj.google_drive_url:
-            return "Google Drive"
+        return obj.source_label
 
-        if obj.video_path:
-            return "Local file"
-
-        return "Not configured"
-
-    @admin.display(
-        boolean=True,
-        description="Subtitle",
-    )
+    @admin.display(boolean=True, description="Subtitle")
     def has_subtitle(self, obj):
         return bool(obj.converted_subtitle)

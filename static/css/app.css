@@ -798,3 +798,351 @@ video::cue {
     min-height: 260px;
   }
 }
+
+
+/* ==================================================
+   Professional Home Cinema player
+   Append this section to the end of app.css
+   ================================================== */
+
+.cinema-detail {
+  padding-top: 28px;
+}
+
+.cinema-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(270px, 340px);
+  gap: 30px;
+  align-items: start;
+}
+
+.cinema-stage {
+  min-width: 0;
+  overflow: hidden;
+  background: #08080a;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+}
+
+.cinema-screen {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.055), transparent 45%),
+    #000000;
+}
+
+.movie-player {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000000;
+  transition: filter 0.16s ease;
+}
+
+.center-play-button {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  z-index: 4;
+  width: 74px;
+  height: 74px;
+  display: grid;
+  place-items: center;
+  padding: 0 0 0 4px;
+  color: #ffffff;
+  background: rgba(239, 61, 54, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.42);
+  font-size: 28px;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.center-play-button:hover {
+  transform: translate(-50%, -50%) scale(1.07);
+}
+
+.cinema-screen.is-playing .center-play-button {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cinema-screen:hover .center-play-button {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.player-message {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  z-index: 6;
+  max-width: min(90%, 680px);
+  padding: 10px 14px;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  text-align: center;
+  font-size: 13px;
+  transform: translateX(-50%);
+}
+
+.cinema-controls {
+  padding: 14px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
+    #111115;
+  border-top: 1px solid var(--line);
+}
+
+.control-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.cinema-button {
+  min-height: 38px;
+  padding: 9px 13px;
+  color: #dedee5;
+  background: #1c1c22;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 9px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.cinema-button:hover,
+.cinema-button.active {
+  color: #ffffff;
+  background: #292930;
+  border-color: rgba(239, 61, 54, 0.65);
+}
+
+.cinema-button.primary {
+  min-width: 72px;
+  color: #ffffff;
+  background: var(--red);
+  border-color: var(--red);
+  font-weight: 700;
+}
+
+.cinema-select {
+  width: auto;
+  min-width: 76px;
+  min-height: 38px;
+  padding: 8px 10px;
+  background: #1c1c22;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 155px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.volume-control input {
+  padding: 0;
+}
+
+.progress-row {
+  display: grid;
+  grid-template-columns: auto minmax(80px, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.progress-slider,
+.cinema-controls input[type="range"] {
+  accent-color: var(--red);
+}
+
+.progress-slider {
+  width: 100%;
+  padding: 0;
+}
+
+.advanced-panel {
+  margin-top: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+}
+
+.advanced-panel summary {
+  padding: 13px 2px 2px;
+  color: #d7d7df;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 12px;
+  padding-top: 14px;
+}
+
+.settings-grid label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.settings-grid label span {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.settings-grid input {
+  padding: 0;
+}
+
+.subtitle-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.subtitle-upload {
+  display: grid;
+  gap: 6px;
+  min-width: min(100%, 280px);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.subtitle-upload input {
+  padding: 8px;
+  font-size: 11px;
+}
+
+.cinema-info {
+  position: sticky;
+  top: 96px;
+  padding: 18px;
+  background: rgba(21, 21, 25, 0.65);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+}
+
+.cinema-info h1 {
+  font-size: clamp(32px, 4vw, 48px);
+}
+
+.cinema-layout.theater-mode {
+  display: block;
+}
+
+.cinema-layout.theater-mode .cinema-stage {
+  width: 100%;
+}
+
+.cinema-layout.theater-mode .cinema-screen {
+  max-height: calc(100vh - 190px);
+}
+
+.cinema-layout.theater-mode .cinema-info {
+  position: static;
+  max-width: 900px;
+  margin-top: 24px;
+}
+
+.cinema-stage:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  background: #000000;
+  border: 0;
+  border-radius: 0;
+}
+
+.cinema-stage:fullscreen .cinema-screen {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+video::cue {
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.82);
+  font-family: Arial, Tahoma, sans-serif;
+  font-size: clamp(16px, 2.2vw, 28px);
+  line-height: 1.45;
+}
+
+@media (max-width: 1050px) {
+  .cinema-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cinema-info {
+    position: static;
+  }
+
+  .settings-grid {
+    grid-template-columns: repeat(2, minmax(130px, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .detail-page.cinema-detail {
+    padding: 18px 12px 48px;
+  }
+
+  .cinema-stage {
+    border-radius: 13px;
+  }
+
+  .cinema-controls {
+    padding: 10px;
+  }
+
+  .main-control-row .cinema-button,
+  .main-control-row .cinema-select {
+    flex: 1 1 calc(33.333% - 8px);
+    min-width: 88px;
+  }
+
+  .volume-control {
+    flex: 1 1 100%;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .center-play-button {
+    width: 58px;
+    height: 58px;
+    font-size: 22px;
+  }
+
+  .cinema-info {
+    padding: 16px;
+  }
+}

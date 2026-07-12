@@ -1,4 +1,5 @@
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
@@ -7,25 +8,16 @@ from django.utils.text import slugify
 
 
 def convert_srt_to_vtt(content: str) -> str:
-    """
-    Convert basic SRT subtitle content into WebVTT.
-    """
-
+    """Convert common SRT subtitle content into WebVTT."""
     content = content.replace("\r\n", "\n").replace("\r", "\n")
-
-    output_lines = [
-        "WEBVTT",
-        "",
-    ]
+    output_lines = ["WEBVTT", ""]
 
     for line in content.split("\n"):
         stripped = line.strip()
 
-        # Remove SRT sequence numbers.
         if stripped.isdigit():
             continue
 
-        # WebVTT uses dots instead of commas in timestamps.
         if "-->" in line:
             line = line.replace(",", ".")
 
@@ -35,10 +27,17 @@ def convert_srt_to_vtt(content: str) -> str:
 
 
 class Movie(models.Model):
-    title = models.CharField(
-        "Title",
-        max_length=220,
+    VIDEO_TYPE_AUTO = "auto"
+    VIDEO_TYPE_MP4 = "mp4"
+    VIDEO_TYPE_HLS = "hls"
+
+    VIDEO_TYPE_CHOICES = (
+        (VIDEO_TYPE_AUTO, "Automatic"),
+        (VIDEO_TYPE_MP4, "MP4"),
+        (VIDEO_TYPE_HLS, "HLS (.m3u8)"),
     )
+
+    title = models.CharField("Title", max_length=220)
 
     slug = models.SlugField(
         max_length=240,
@@ -74,16 +73,33 @@ class Movie(models.Model):
         "Local video file path",
         max_length=1000,
         blank=True,
-        help_text=r"Example: E:\Movies\film.mp4",
+        help_text=r"Local development only. Example: E:\Movies\film.mp4",
+    )
+
+    video_url = models.URLField(
+        "Direct MP4 or HLS URL",
+        max_length=2000,
+        blank=True,
+        help_text=(
+            "Preferred for Railway. Enter a direct .mp4 URL or an "
+            "HLS .m3u8 playlist URL."
+        ),
+    )
+
+    video_type = models.CharField(
+        "Video type",
+        max_length=10,
+        choices=VIDEO_TYPE_CHOICES,
+        default=VIDEO_TYPE_AUTO,
     )
 
     google_drive_url = models.URLField(
-        "Google Drive URL",
+        "Google Drive sharing URL",
         max_length=1000,
         blank=True,
         help_text=(
-            "Paste a Google Drive sharing link, for example: "
-            "https://drive.google.com/file/d/FILE_ID/view"
+            "Transitional option. Direct MP4/HLS hosting is more reliable "
+            "for seeking, mobile playback, and high traffic."
         ),
     )
 
@@ -120,76 +136,112 @@ class Movie(models.Model):
         ]
 
     def clean(self):
-        """
-        Require either a local video path or a Google Drive URL.
-        """
-
         super().clean()
 
-        if not self.video_path and not self.google_drive_url:
+        configured_sources = [
+            bool(self.video_path),
+            bool(self.video_url),
+            bool(self.google_drive_url),
+        ]
+
+        if not any(configured_sources):
             raise ValidationError(
-                "Enter either a local video file path or a Google Drive URL."
+                "Enter a local video path, a direct MP4/HLS URL, "
+                "or a Google Drive sharing URL."
             )
+
+        if sum(configured_sources) > 1:
+            raise ValidationError(
+                "Configure only one video source for each movie."
+            )
+
+        if self.video_type == self.VIDEO_TYPE_HLS:
+            candidate = (self.video_url or "").lower().split("?", 1)[0]
+            if self.video_url and not candidate.endswith(".m3u8"):
+                raise ValidationError(
+                    {"video_url": "HLS video type requires a .m3u8 URL."}
+                )
 
     @property
     def google_drive_file_id(self) -> str:
-        """
-        Extract the Google Drive file ID from common sharing URL formats.
-        """
-
         if not self.google_drive_url:
             return ""
 
         url = self.google_drive_url.strip()
 
-        # Format:
-        # https://drive.google.com/file/d/FILE_ID/view
         if "/file/d/" in url:
             try:
                 return url.split("/file/d/", 1)[1].split("/", 1)[0]
             except IndexError:
                 return ""
 
-        # Format:
-        # https://drive.google.com/open?id=FILE_ID
-        if "id=" in url:
-            try:
-                file_id = url.split("id=", 1)[1]
-                return file_id.split("&", 1)[0]
-            except IndexError:
-                return ""
-
-        # Format:
-        # https://drive.google.com/uc?id=FILE_ID
-        if "/uc?" in url and "id=" in url:
-            try:
-                file_id = url.split("id=", 1)[1]
-                return file_id.split("&", 1)[0]
-            except IndexError:
-                return ""
+        parsed = urlparse(url)
+        query_id = parse_qs(parsed.query).get("id")
+        if query_id:
+            return query_id[0]
 
         return ""
 
     @property
-    def google_drive_embed_url(self) -> str:
+    def google_drive_direct_url(self) -> str:
         """
-        Return a Google Drive preview URL suitable for an iframe.
-        """
+        Return a Drive download URL without embedding Google's iframe.
 
+        Google may still reject large files, rate-limited files, or files
+        that are not shared publicly. A true direct MP4/HLS host is preferred.
+        """
         file_id = self.google_drive_file_id
-
         if not file_id:
             return ""
 
-        return f"https://drive.google.com/file/d/{file_id}/preview"
+        return f"https://drive.google.com/uc?export=download&id={file_id}"
+
+    @property
+    def resolved_video_url(self) -> str:
+        if self.video_url:
+            return self.video_url.strip()
+
+        if self.google_drive_direct_url:
+            return self.google_drive_direct_url
+
+        return ""
+
+    @property
+    def resolved_video_type(self) -> str:
+        if self.video_type != self.VIDEO_TYPE_AUTO:
+            return self.video_type
+
+        candidate = self.resolved_video_url.lower().split("?", 1)[0]
+
+        if candidate.endswith(".m3u8"):
+            return self.VIDEO_TYPE_HLS
+
+        return self.VIDEO_TYPE_MP4
 
     @property
     def has_local_video(self) -> bool:
         return bool(self.video_path)
 
     @property
-    def has_google_drive_video(self) -> bool:
-        return bool(self.google_drive_embed_url)
+    def has_remote_video(self) -> bool:
+        return bool(self.resolved_video_url)
+
+    @property
+    def source_label(self) -> str:
+        if self.video_path:
+            return "Local video"
+
+        if self.video_url:
+            return (
+                "HLS stream"
+                if self.resolved_video_type == self.VIDEO_TYPE_HLS
+                else "Direct MP4"
+            )
+
+        if self.google_drive_url:
+            return "Google Drive direct link"
+
+        return "Not configured"
 
     def _generate_unique_slug(self) -> str:
         base_slug = slugify(self.title) or "movie"
@@ -214,13 +266,7 @@ class Movie(models.Model):
         if extension == ".vtt":
             if self.converted_subtitle.name != self.subtitle.name:
                 self.converted_subtitle = self.subtitle
-
-                super().save(
-                    update_fields=[
-                        "converted_subtitle",
-                    ]
-                )
-
+                super().save(update_fields=["converted_subtitle"])
             return
 
         if extension != ".srt":
@@ -250,34 +296,22 @@ class Movie(models.Model):
                 errors="replace",
             )
 
-        converted_content = convert_srt_to_vtt(
-            decoded_content
-        )
-
-        converted_name = (
-            f"{Path(subtitle_name).stem}.vtt"
-        )
+        converted_content = convert_srt_to_vtt(decoded_content)
+        converted_name = f"{Path(subtitle_name).stem}.vtt"
 
         self.converted_subtitle.save(
             converted_name,
-            ContentFile(
-                converted_content.encode("utf-8")
-            ),
+            ContentFile(converted_content.encode("utf-8")),
             save=False,
         )
 
-        super().save(
-            update_fields=[
-                "converted_subtitle",
-            ]
-        )
+        super().save(update_fields=["converted_subtitle"])
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = self._generate_unique_slug()
 
         super().save(*args, **kwargs)
-
         self._convert_subtitle_file()
 
     def __str__(self):
