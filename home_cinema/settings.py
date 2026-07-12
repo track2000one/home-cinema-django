@@ -299,3 +299,31 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 0
     SECURE_HSTS_INCLUDE_SUBDOMAINS = False
     SECURE_HSTS_PRELOAD = False
+
+# --------------------------------------------------
+# Google Drive API streaming
+# --------------------------------------------------
+
+# Paste the complete service-account JSON into this Railway variable.
+# Do not commit the JSON key file to GitHub.
+GOOGLE_SERVICE_ACCOUNT_JSON = os.getenv(
+    "GOOGLE_SERVICE_ACCOUNT_JSON",
+    "",
+)
+
+GOOGLE_DRIVE_CONNECT_TIMEOUT = int(
+    os.getenv("GOOGLE_DRIVE_CONNECT_TIMEOUT", "15")
+)
+
+# A long read timeout is appropriate for video streaming.
+GOOGLE_DRIVE_READ_TIMEOUT = int(
+    os.getenv("GOOGLE_DRIVE_READ_TIMEOUT", "120")
+)
+
+GOOGLE_DRIVE_STREAM_CHUNK_SIZE = int(
+    os.getenv(
+        "GOOGLE_DRIVE_STREAM_CHUNK_SIZE",
+        str(1024 * 1024),
+    )
+)
+

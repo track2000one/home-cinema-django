@@ -22,17 +22,11 @@
           class="movie-player"
           preload="metadata"
           playsinline
-          crossorigin="anonymous"
           {% if movie.poster %}poster="{{ movie.poster.url }}"{% endif %}
           data-source-type="{{ player_source_type }}"
           data-resume-key="home-cinema-{{ movie.pk }}"
         >
-          {% if movie.video_path %}
-          <source
-            src="{% url 'movies:stream' movie.pk %}"
-            type="video/mp4"
-          >
-          {% elif player_source_type == "mp4" %}
+          {% if player_source_type == "mp4" %}
           <source
             src="{{ player_source_url }}"
             type="video/mp4"
@@ -198,9 +192,9 @@
 
       {% if movie.google_drive_url %}
       <p class="source-note">
-        Google Drive is being used without its embedded player, so its
-        external-open button no longer appears. For stable seeking and
-        mobile playback, migrate the file to a direct MP4 or HLS host.
+        The movie is stored in Google Drive and streamed securely through
+        the site player using Google Drive API. The Google Drive interface
+        and external-open button are not displayed.
       </p>
       {% endif %}
     </aside>
@@ -519,7 +513,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   player.addEventListener("error", function () {
     showMessage(
-      "The video source could not be loaded. Check that the URL is direct, public, and supports browser range/CORS requests."
+      "The video could not be loaded. Check the Google Drive API configuration, service-account access, and file sharing."
     );
   });
 

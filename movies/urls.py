@@ -22,4 +22,9 @@ urlpatterns = [
         views.stream_video,
         name="stream",
     ),
+    path(
+        "drive-stream/<int:pk>/",
+        views.stream_google_drive_video,
+        name="drive_stream",
+    ),
 ]

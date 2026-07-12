@@ -183,28 +183,14 @@ class Movie(models.Model):
         return ""
 
     @property
-    def google_drive_direct_url(self) -> str:
-        """
-        Return a Drive download URL without embedding Google's iframe.
-
-        Google may still reject large files, rate-limited files, or files
-        that are not shared publicly. A true direct MP4/HLS host is preferred.
-        """
-        file_id = self.google_drive_file_id
-        if not file_id:
-            return ""
-
-        return f"https://drive.google.com/uc?export=download&id={file_id}"
-
-    @property
     def resolved_video_url(self) -> str:
-        if self.video_url:
-            return self.video_url.strip()
+        """
+        Return only a genuinely direct remote MP4/HLS URL.
 
-        if self.google_drive_direct_url:
-            return self.google_drive_direct_url
-
-        return ""
+        Google Drive files are streamed through the authenticated Django
+        endpoint and are therefore intentionally excluded here.
+        """
+        return self.video_url.strip() if self.video_url else ""
 
     @property
     def resolved_video_type(self) -> str:
@@ -239,7 +225,7 @@ class Movie(models.Model):
             )
 
         if self.google_drive_url:
-            return "Google Drive direct link"
+            return "Google Drive API streaming"
 
         return "Not configured"
 
