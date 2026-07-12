@@ -1,0 +1,415 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ movie.title }}
+{% endblock %}
+
+{% block content %}
+
+<section class="detail-page">
+
+  <a
+    class="back-link"
+    href="{% url 'movies:library' %}"
+  >
+    ← Back to library
+  </a>
+
+  {% if movie.google_drive_embed_url %}
+
+  <div class="drive-toolbar">
+
+    <button
+      type="button"
+      class="player-control-button"
+      data-player-size="small"
+    >
+      Small
+    </button>
+
+    <button
+      type="button"
+      class="player-control-button"
+      data-player-size="medium"
+    >
+      Medium
+    </button>
+
+    <button
+      type="button"
+      class="player-control-button active"
+      data-player-size="large"
+    >
+      Large
+    </button>
+
+    <button
+      type="button"
+      class="player-control-button"
+      data-player-size="theater"
+    >
+      Theater
+    </button>
+
+    <button
+      type="button"
+      class="player-control-button"
+      id="fit-screen-button"
+    >
+      Fit screen
+    </button>
+
+    <button
+      type="button"
+      class="player-control-button"
+      id="fullscreen-button"
+    >
+      Fullscreen
+    </button>
+
+  </div>
+
+  {% endif %}
+
+  <div
+    class="detail-grid"
+    id="detail-grid"
+  >
+
+    <div
+      class="video-box"
+      id="video-box"
+    >
+
+      {% if movie.google_drive_embed_url %}
+
+      <div
+        class="drive-resize-container size-large"
+        id="drive-resize-container"
+      >
+
+        <iframe
+          id="drive-player"
+          class="drive-player"
+          src="{{ movie.google_drive_embed_url }}"
+          title="{{ movie.title }}"
+          allow="autoplay; fullscreen"
+          allowfullscreen
+          loading="eager"
+          referrerpolicy="strict-origin-when-cross-origin"
+        ></iframe>
+
+        <div class="resize-help">
+          Drag the lower-right corner to resize
+        </div>
+
+      </div>
+
+      {% elif movie.video_path %}
+
+      <video
+        id="movie-player"
+        controls
+        preload="metadata"
+        playsinline
+        {% if movie.poster %}
+        poster="{{ movie.poster.url }}"
+        {% endif %}
+      >
+
+        <source
+          src="{% url 'movies:stream' movie.pk %}"
+        >
+
+        {% if movie.converted_subtitle %}
+        <track
+          src="{{ movie.converted_subtitle.url }}"
+          kind="subtitles"
+          srclang="ar"
+          label="Arabic"
+          default
+        >
+        {% endif %}
+
+        Your browser does not support HTML5 video.
+
+      </video>
+
+      {% else %}
+
+      <div class="video-error">
+        No video source has been configured.
+      </div>
+
+      {% endif %}
+
+    </div>
+
+    <aside
+      class="movie-info"
+      id="movie-info"
+    >
+
+      <span class="kicker">
+        {{ movie.genre|default:"Movie" }}
+      </span>
+
+      <h1>
+        {{ movie.title }}
+      </h1>
+
+      <div class="year">
+        {{ movie.year|default:"Year not specified" }}
+      </div>
+
+      <p>
+        {{ movie.description|default:"No description available." }}
+      </p>
+
+      {% if movie.google_drive_embed_url %}
+
+      <div class="source-status drive-source">
+        Google Drive video
+      </div>
+
+      <p class="source-note">
+        You can resize the player using the buttons above
+        or drag its lower-right corner.
+      </p>
+
+      {% elif movie.video_path %}
+
+      <div class="source-status local-source">
+        Local video
+      </div>
+
+        {% if movie.converted_subtitle %}
+
+        <div class="subtitle-status">
+          Arabic subtitle available
+        </div>
+
+        {% else %}
+
+        <div class="subtitle-status subtitle-unavailable">
+          No subtitle available
+        </div>
+
+        {% endif %}
+
+      {% endif %}
+
+    </aside>
+
+  </div>
+
+</section>
+
+
+{% if movie.google_drive_embed_url %}
+
+<script>
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+    const resizeContainer = document.getElementById(
+      "drive-resize-container"
+    );
+
+    const videoBox = document.getElementById(
+      "video-box"
+    );
+
+    const detailGrid = document.getElementById(
+      "detail-grid"
+    );
+
+    const movieInfo = document.getElementById(
+      "movie-info"
+    );
+
+    const fullscreenButton = document.getElementById(
+      "fullscreen-button"
+    );
+
+    const fitScreenButton = document.getElementById(
+      "fit-screen-button"
+    );
+
+    const sizeButtons = document.querySelectorAll(
+      "[data-player-size]"
+    );
+
+    if (!resizeContainer) {
+      return;
+    }
+
+    function removeSizeClasses() {
+      resizeContainer.classList.remove(
+        "size-small",
+        "size-medium",
+        "size-large",
+        "size-theater",
+        "size-fit-screen"
+      );
+    }
+
+    function removeActiveButtons() {
+      sizeButtons.forEach(
+        function (button) {
+          button.classList.remove("active");
+        }
+      );
+    }
+
+    function applySize(size, activeButton) {
+      removeSizeClasses();
+      removeActiveButtons();
+
+      resizeContainer.style.width = "";
+      resizeContainer.style.height = "";
+
+      resizeContainer.classList.add(
+        "size-" + size
+      );
+
+      if (activeButton) {
+        activeButton.classList.add("active");
+      }
+
+      if (size === "theater") {
+        detailGrid.classList.add(
+          "theater-layout"
+        );
+
+        movieInfo.classList.add(
+          "theater-info"
+        );
+      } else {
+        detailGrid.classList.remove(
+          "theater-layout"
+        );
+
+        movieInfo.classList.remove(
+          "theater-info"
+        );
+      }
+    }
+
+    sizeButtons.forEach(
+      function (button) {
+        button.addEventListener(
+          "click",
+          function () {
+            const size = button.dataset.playerSize;
+
+            applySize(
+              size,
+              button
+            );
+          }
+        );
+      }
+    );
+
+    if (fitScreenButton) {
+      fitScreenButton.addEventListener(
+        "click",
+        function () {
+          removeSizeClasses();
+          removeActiveButtons();
+
+          detailGrid.classList.add(
+            "theater-layout"
+          );
+
+          movieInfo.classList.add(
+            "theater-info"
+          );
+
+          resizeContainer.style.width =
+            "calc(100vw - 40px)";
+
+          resizeContainer.style.height =
+            "calc(100vh - 190px)";
+
+          resizeContainer.classList.add(
+            "size-fit-screen"
+          );
+        }
+      );
+    }
+
+    if (fullscreenButton) {
+      fullscreenButton.addEventListener(
+        "click",
+        async function () {
+          try {
+            if (!document.fullscreenElement) {
+              await videoBox.requestFullscreen();
+            } else {
+              await document.exitFullscreen();
+            }
+          } catch (error) {
+            console.error(
+              "Fullscreen failed:",
+              error
+            );
+          }
+        }
+      );
+    }
+
+    document.addEventListener(
+      "fullscreenchange",
+      function () {
+        if (document.fullscreenElement) {
+          videoBox.classList.add(
+            "is-fullscreen"
+          );
+        } else {
+          videoBox.classList.remove(
+            "is-fullscreen"
+          );
+        }
+      }
+    );
+  }
+);
+</script>
+
+{% endif %}
+
+
+{% if movie.video_path and not movie.google_drive_embed_url %}
+
+<script>
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+    const player = document.getElementById(
+      "movie-player"
+    );
+
+    if (!player) {
+      return;
+    }
+
+    player.addEventListener(
+      "loadedmetadata",
+      function () {
+        if (
+          player.textTracks &&
+          player.textTracks.length > 0
+        ) {
+          player.textTracks[0].mode = "showing";
+        }
+      }
+    );
+  }
+);
+</script>
+
+{% endif %}
+
+{% endblock %}

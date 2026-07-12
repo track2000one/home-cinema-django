@@ -1,0 +1,33 @@
+{% load static %}
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Home Cinema{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+<header class="topbar">
+  <a href="{% url 'movies:library' %}" class="brand">
+    <span class="brand-icon">▶</span>
+    <span>Home Cinema</span>
+  </a>
+
+  {% if user.is_authenticated %}
+  <nav>
+    <a href="{% url 'movies:library' %}">Home</a>
+    {% if user.is_staff %}<a href="/admin/">Admin</a>{% endif %}
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit">Log out</button>
+    </form>
+  </nav>
+  {% endif %}
+</header>
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>
