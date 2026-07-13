@@ -1,17 +1,20 @@
-التصميم الجديد الاحترافي
+تم إصلاح المشكلتين:
 
-استبدل الملفين بالكامل:
-1) movies/templates/movies/detail.html
-2) static/css/app.css
+1) الاستجابة:
+   تم الحفاظ على تنسيقات movie-grid و movie-card الأصلية، وتنظيف CSS المكرر فقط.
 
-ثم نفّذ:
+2) Fullscreen:
+   تم إلغاء Fullscreen على عنصر الفيديو لأنه سبب STATUS_ACCESS_VIOLATION.
+   الآن يدخل cinema-stage إلى Fullscreen بشكل آمن، مع إخفاء الأدوات تلقائيًا.
+
+التركيب:
+- استبدل movies/templates/movies/detail.html
+- استبدل static/css/app.css بالكامل
+
+ثم:
 git add .
-git commit -m "Apply professional cinema redesign"
+git commit -m "Fix responsive layout and fullscreen crash"
 git push
 
 بعد نجاح Railway:
-افتح الموقع واضغط Ctrl + F5
-
-مهم:
-- استبدل الملفين كاملين، ولا تلصق الأكواد فوق القديمة.
-- هذا التصميم يستخدم Fullscreen للفيديو نفسه، وليس للحاوية كاملة.
+Ctrl + F5

@@ -4,40 +4,19 @@
 {% block title %}{{ movie.title }}{% endblock %}
 
 {% block content %}
+<!-- PLAYER_VERSION: STAGE_FULLSCREEN_V3 -->
 <section class="detail-page cinema-detail">
+
   <a class="back-link" href="{% url 'movies:library' %}">
     ← Back to library
   </a>
 
-  <div class="cinema-hero">
-    <div class="hero-copy">
-      <span class="kicker">{{ movie.genre|default:"Movie" }}</span>
-      <h1>{{ movie.title }}</h1>
-      <div class="hero-meta">
-        <span class="meta-pill">{{ movie.year|default:"N/A" }}</span>
-        <span class="meta-pill">{{ movie.source_label }}</span>
-        {% if movie.converted_subtitle %}
-        <span class="meta-pill">Arabic Subtitle</span>
-        {% endif %}
-      </div>
-      <p>{{ movie.description|default:"No description available." }}</p>
-    </div>
-
-    {% if movie.poster %}
-    <div class="hero-poster">
-      <img src="{{ movie.poster.url }}" alt="{{ movie.title }}">
-    </div>
-    {% endif %}
-  </div>
-
   <div class="cinema-layout" id="cinema-layout">
+
     <main class="cinema-stage" id="cinema-stage">
-      <div class="player-top-chips">
-        <span class="chip">Home Cinema</span>
-        <span class="chip chip-soft">{{ movie.genre|default:"Movie" }}</span>
-      </div>
 
       <div class="cinema-screen" id="cinema-screen">
+
         {% if movie.video_path or player_source_url %}
         <video
           id="movie-player"
@@ -49,7 +28,10 @@
           data-resume-key="home-cinema-{{ movie.pk }}"
         >
           {% if player_source_type == "mp4" %}
-          <source src="{{ player_source_url }}" type="video/mp4">
+          <source
+            src="{{ player_source_url }}"
+            type="video/mp4"
+          >
           {% endif %}
 
           {% if movie.converted_subtitle %}
@@ -80,146 +62,144 @@
           No video source has been configured.
         </div>
         {% endif %}
+
       </div>
 
       {% if movie.video_path or player_source_url %}
       <section class="cinema-controls" id="cinema-controls" aria-label="Player controls">
-        <div class="controls-surface">
-          <div class="progress-cluster">
-            <span id="current-time" class="time-label">00:00</span>
-            <input
-              id="progress-slider"
-              class="progress-slider"
-              type="range"
-              min="0"
-              max="100"
-              step="0.01"
-              value="0"
-              aria-label="Video progress"
-            >
-            <span id="duration-time" class="time-label">00:00</span>
-          </div>
 
-          <div class="control-row main-control-row">
-            <div class="left-controls">
-              <button type="button" class="cinema-button primary" id="play-button">
-                Play
-              </button>
+        <div class="control-row main-control-row">
+          <button type="button" class="cinema-button primary" id="play-button">
+            Play
+          </button>
 
-              <button type="button" class="cinema-button" id="backward-button">
-                −10s
-              </button>
+          <button type="button" class="cinema-button" id="backward-button">
+            −10s
+          </button>
 
-              <button type="button" class="cinema-button" id="forward-button">
-                +10s
-              </button>
+          <button type="button" class="cinema-button" id="forward-button">
+            +10s
+          </button>
 
-              <label class="volume-control">
-                <span>Volume</span>
-                <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1">
-              </label>
+          <label class="volume-control">
+            <span>Volume</span>
+            <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1">
+          </label>
 
-              <select id="speed-select" class="cinema-select" aria-label="Playback speed">
-                <option value="0.5">0.5×</option>
-                <option value="0.75">0.75×</option>
-                <option value="1" selected>1×</option>
-                <option value="1.25">1.25×</option>
-                <option value="1.5">1.5×</option>
-                <option value="2">2×</option>
-              </select>
-            </div>
+          <select id="speed-select" class="cinema-select" aria-label="Playback speed">
+            <option value="0.5">0.5×</option>
+            <option value="0.75">0.75×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.25">1.25×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
 
-            <div class="right-controls">
-              <button type="button" class="cinema-button" id="pip-button">
-                PiP
-              </button>
+          <button type="button" class="cinema-button" id="pip-button">
+            Picture in Picture
+          </button>
 
-              <button type="button" class="cinema-button" id="theater-button">
-                Theater
-              </button>
+          <button type="button" class="cinema-button" id="theater-button">
+            Theater
+          </button>
 
-              <button type="button" class="cinema-button" id="fullscreen-button">
-                Fullscreen
-              </button>
-            </div>
-          </div>
-
-          <details class="advanced-panel">
-            <summary>Picture & subtitle tools</summary>
-
-            <div class="settings-grid">
-              <label>
-                <span>Brightness <output id="brightness-output">100%</output></span>
-                <input id="brightness-slider" type="range" min="50" max="180" value="100">
-              </label>
-
-              <label>
-                <span>Contrast <output id="contrast-output">100%</output></span>
-                <input id="contrast-slider" type="range" min="50" max="180" value="100">
-              </label>
-
-              <label>
-                <span>Saturation <output id="saturation-output">100%</output></span>
-                <input id="saturation-slider" type="range" min="0" max="200" value="100">
-              </label>
-
-              <label>
-                <span>Hue <output id="hue-output">0°</output></span>
-                <input id="hue-slider" type="range" min="-90" max="90" value="0">
-              </label>
-            </div>
-
-            <div class="subtitle-tools">
-              <button type="button" class="cinema-button" id="subtitle-toggle">
-                Subtitles on/off
-              </button>
-
-              <label class="subtitle-upload">
-                <span>Load SRT or VTT from this device</span>
-                <input
-                  id="subtitle-file"
-                  type="file"
-                  accept=".srt,.vtt,text/vtt,application/x-subrip"
-                >
-              </label>
-
-              <button type="button" class="cinema-button" id="reset-picture-button">
-                Reset picture
-              </button>
-            </div>
-          </details>
+          <button type="button" class="cinema-button" id="fullscreen-button">
+            Fullscreen
+          </button>
         </div>
+
+        <div class="progress-row">
+          <span id="current-time">00:00</span>
+          <input
+            id="progress-slider"
+            class="progress-slider"
+            type="range"
+            min="0"
+            max="100"
+            step="0.01"
+            value="0"
+            aria-label="Video progress"
+          >
+          <span id="duration-time">00:00</span>
+        </div>
+
+        <details class="advanced-panel">
+          <summary>Picture and subtitle settings</summary>
+
+          <div class="settings-grid">
+            <label>
+              <span>Brightness <output id="brightness-output">100%</output></span>
+              <input id="brightness-slider" type="range" min="50" max="180" value="100">
+            </label>
+
+            <label>
+              <span>Contrast <output id="contrast-output">100%</output></span>
+              <input id="contrast-slider" type="range" min="50" max="180" value="100">
+            </label>
+
+            <label>
+              <span>Color saturation <output id="saturation-output">100%</output></span>
+              <input id="saturation-slider" type="range" min="0" max="200" value="100">
+            </label>
+
+            <label>
+              <span>Color tone <output id="hue-output">0°</output></span>
+              <input id="hue-slider" type="range" min="-90" max="90" value="0">
+            </label>
+          </div>
+
+          <div class="subtitle-tools">
+            <button type="button" class="cinema-button" id="subtitle-toggle">
+              Subtitles on/off
+            </button>
+
+            <label class="subtitle-upload">
+              <span>Load SRT or VTT from this device</span>
+              <input
+                id="subtitle-file"
+                type="file"
+                accept=".srt,.vtt,text/vtt,application/x-subrip"
+              >
+            </label>
+
+            <button type="button" class="cinema-button" id="reset-picture-button">
+              Reset picture
+            </button>
+          </div>
+        </details>
+
       </section>
       {% endif %}
+
     </main>
 
     <aside class="movie-info cinema-info">
-      <div class="info-card">
-        <span class="kicker">{{ movie.genre|default:"Movie" }}</span>
-        <h2>About this title</h2>
-        <p>{{ movie.description|default:"No description available." }}</p>
+      <span class="kicker">{{ movie.genre|default:"Movie" }}</span>
+      <h1>{{ movie.title }}</h1>
+      <div class="year">{{ movie.year|default:"Year not specified" }}</div>
+      <p>{{ movie.description|default:"No description available." }}</p>
+
+      <div class="source-status local-source">
+        {{ movie.source_label }}
       </div>
 
-      <div class="info-card">
-        <h3>Streaming status</h3>
-        <div class="source-status local-source">{{ movie.source_label }}</div>
-
-        {% if movie.converted_subtitle %}
-        <div class="subtitle-status">Arabic subtitle available</div>
-        {% else %}
-        <div class="subtitle-status subtitle-unavailable">
-          You can load an SRT/VTT subtitle while watching
-        </div>
-        {% endif %}
-
-        {% if movie.google_drive_url %}
-        <p class="source-note">
-          The movie is stored in Google Drive and streamed securely through
-          the site player using Google Drive API.
-        </p>
-        {% endif %}
+      {% if movie.converted_subtitle %}
+      <div class="subtitle-status">Arabic subtitle available</div>
+      {% else %}
+      <div class="subtitle-status subtitle-unavailable">
+        You can load an SRT/VTT subtitle while watching
       </div>
+      {% endif %}
+
+      {% if movie.google_drive_url %}
+      <p class="source-note">
+        The movie is stored in Google Drive and streamed securely through
+        the site player using Google Drive API. The Google Drive interface
+        and external-open button are not displayed.
+      </p>
+      {% endif %}
     </aside>
+
   </div>
 </section>
 
@@ -235,6 +215,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const message = document.getElementById("player-message");
   const sourceType = player.dataset.sourceType;
   const remoteSource = "{{ player_source_url|escapejs }}";
+  player.controls = false;
 
   const controls = {
     centerPlay: document.getElementById("center-play-button"),
@@ -270,7 +251,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const controlsPanel = document.getElementById("cinema-controls");
   const advancedPanel = document.querySelector(".advanced-panel");
-  const CONTROLS_HIDE_DELAY = 2600;
+  const CONTROLS_HIDE_DELAY = 3000;
 
   function showMessage(text) {
     message.textContent = text;
@@ -539,12 +520,7 @@ document.addEventListener("DOMContentLoaded", function () {
     togglePlayback();
   });
 
-  player.addEventListener("click", function () {
-    if (player.controls) {
-      return;
-    }
-    togglePlayback();
-  });
+  player.addEventListener("click", togglePlayback);
 
   player.addEventListener("play", function () {
     updatePlayButtons();
@@ -624,28 +600,19 @@ document.addEventListener("DOMContentLoaded", function () {
   controls.fullscreen.addEventListener("click", async function () {
     try {
       clearControlsTimer();
+      controls.fullscreen.blur();
 
       if (document.fullscreenElement) {
         await document.exitFullscreen();
-        player.controls = false;
         return;
       }
 
-      player.controls = true;
-
-      if (player.requestFullscreen) {
-        await player.requestFullscreen();
-        return;
+      if (!stage.requestFullscreen) {
+        throw new Error("Fullscreen unavailable");
       }
 
-      if (player.webkitEnterFullscreen) {
-        player.webkitEnterFullscreen();
-        return;
-      }
-
-      throw new Error("Fullscreen unavailable");
+      await stage.requestFullscreen();
     } catch (error) {
-      player.controls = false;
       showMessage("Fullscreen is not available on this device.");
     }
   });
@@ -744,7 +711,13 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   stage.addEventListener("mouseenter", showPlayerControls);
-  stage.addEventListener("touchstart", showPlayerControls, { passive: true });
+
+  stage.addEventListener(
+    "touchstart",
+    showPlayerControls,
+    { passive: true }
+  );
+
   stage.addEventListener("pointerdown", showPlayerControls);
 
   stage.addEventListener("mouseleave", function () {
@@ -757,6 +730,7 @@ document.addEventListener("DOMContentLoaded", function () {
     controlsPanel.addEventListener("pointerdown", clearControlsTimer);
     controlsPanel.addEventListener("pointerup", scheduleControlsHide);
     controlsPanel.addEventListener("pointercancel", scheduleControlsHide);
+
     controlsPanel.addEventListener("click", function (event) {
       event.stopPropagation();
       showPlayerControls();
@@ -776,20 +750,21 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   document.addEventListener("fullscreenchange", function () {
+    const isFullscreen = document.fullscreenElement === stage;
+
+    stage.classList.toggle("is-fullscreen", isFullscreen);
     updateFullscreenButton();
+    clearControlsTimer();
 
-    if (document.fullscreenElement !== player) {
-      player.controls = false;
+    if (isFullscreen) {
+      window.setTimeout(function () {
+        if (!player.paused && !player.ended) {
+          stage.classList.add("controls-hidden");
+        }
+      }, 120);
+    } else {
+      stage.classList.remove("controls-hidden");
     }
-  });
-
-  player.addEventListener("webkitbeginfullscreen", function () {
-    player.controls = true;
-  });
-
-  player.addEventListener("webkitendfullscreen", function () {
-    player.controls = false;
-    updatePlayButtons();
   });
 
   window.addEventListener("beforeunload", function () {
