@@ -276,16 +276,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return true;
     }
 
-    if (
-      controlsPanel &&
-      (
-        controlsPanel.matches(":hover") ||
-        controlsPanel.contains(document.activeElement)
-      )
-    ) {
-      return true;
-    }
-
     return false;
   }
 
@@ -738,13 +728,20 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   if (controlsPanel) {
-    controlsPanel.addEventListener("mouseenter", clearControlsTimer);
-    controlsPanel.addEventListener("mouseleave", scheduleControlsHide);
-    controlsPanel.addEventListener("focusin", clearControlsTimer);
-    controlsPanel.addEventListener("focusout", scheduleControlsHide);
+    controlsPanel.addEventListener("pointerdown", clearControlsTimer);
+    controlsPanel.addEventListener("pointerup", scheduleControlsHide);
+    controlsPanel.addEventListener("pointercancel", scheduleControlsHide);
+
     controlsPanel.addEventListener("click", function (event) {
       event.stopPropagation();
       showPlayerControls();
+
+      if (
+        event.target instanceof HTMLElement &&
+        event.target.matches("button")
+      ) {
+        event.target.blur();
+      }
     });
   }
 
@@ -768,6 +765,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     updateFullscreenButton();
     showPlayerControls();
+
+    if (!player.paused && !player.ended) {
+      scheduleControlsHide();
+    }
   });
 
   player.addEventListener("webkitbeginfullscreen", function () {

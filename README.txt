@@ -1,24 +1,20 @@
-طريقة التركيب
+تم إصلاح المشكلة الفعلية:
 
-1. استبدل:
-   movies/templates/movies/detail.html
-   بالملف detail.html.
+1. ملف CSS كان يحتوي عدة نسخ مكررة ومتعارضة من:
+   .cinema-stage
+   .cinema-controls
+   :fullscreen
+   controls-hidden
 
-2. افتح:
-   static/css/app.css
-   والصق محتوى fullscreen_player.css كاملًا في نهاية الملف.
+2. JavaScript كان يمنع إخفاء الشريط بعد الضغط على Fullscreen لأن زر
+   Fullscreen يظل في حالة hover/focus، فكانت الدالة تعتبر أن الأدوات يجب
+   أن تبقى ظاهرة دائمًا.
 
-3. ارفع التعديلات:
-   git add .
-   git commit -m "Improve professional fullscreen player"
-   git push
+التركيب:
+- استبدل movies/templates/movies/detail.html
+- استبدل static/css/app.css بالكامل، ولا تلصق فوق الملف القديم.
 
-4. بعد نجاح Railway Deployment افتح الصفحة بـ Ctrl + F5.
-
-النتيجة:
-- الفيديو يملأ الشاشة بالكامل.
-- الأدوات تظهر فوق الفيديو ولا تحجز مساحة سوداء.
-- الأدوات تختفي تلقائيًا أثناء التشغيل.
-- دعم أفضل للجوال والآيباد، بما في ذلك Safari.
-- مراعاة حواف الأجهزة ذات النتوء Safe Area.
-- تصميم مناسب للوضع الأفقي.
+ثم:
+git add .
+git commit -m "Fix fullscreen controls and remove duplicate CSS"
+git push

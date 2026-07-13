@@ -799,11 +799,9 @@ video::cue {
   }
 }
 
-
-/* ==================================================
-   Professional Home Cinema player
-   Append this section to the end of app.css
-   ================================================== */
+/* ==========================================================
+   Professional Home Cinema Player — Clean Final Version
+   ========================================================== */
 
 .cinema-detail {
   padding-top: 28px;
@@ -817,53 +815,76 @@ video::cue {
 }
 
 .cinema-stage {
+  position: relative;
   min-width: 0;
   overflow: hidden;
-  background: #08080a;
+  isolation: isolate;
+
+  background: #000;
   border: 1px solid var(--line);
   border-radius: 20px;
+
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
 }
 
 .cinema-screen {
   position: relative;
-  display: grid;
-  place-items: center;
+
   width: 100%;
   aspect-ratio: 16 / 9;
+  min-height: 0;
+
+  display: grid;
+  place-items: center;
+
   overflow: hidden;
-  background:
-    radial-gradient(circle at center, rgba(255, 255, 255, 0.055), transparent 45%),
-    #000000;
+  background: #000;
 }
 
 .movie-player {
   display: block;
+
   width: 100%;
   height: 100%;
+
   object-fit: contain;
-  background: #000000;
+  background: #000;
+
   transition: filter 0.16s ease;
 }
 
+/* Center play button */
+
 .center-play-button {
   position: absolute;
-  inset: 50% auto auto 50%;
-  z-index: 4;
+  top: 50%;
+  left: 50%;
+  z-index: 35;
+
   width: 74px;
   height: 74px;
+  padding: 0 0 0 4px;
+
   display: grid;
   place-items: center;
-  padding: 0 0 0 4px;
-  color: #ffffff;
-  background: rgba(239, 61, 54, 0.92);
+
+  color: #fff;
+  background: rgba(239, 61, 54, 0.94);
+
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 50%;
+
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.42);
+
   font-size: 28px;
   cursor: pointer;
+
   transform: translate(-50%, -50%);
-  transition: opacity 0.2s ease, transform 0.2s ease;
+
+  transition:
+    opacity 0.22s ease,
+    visibility 0.22s ease,
+    transform 0.22s ease;
 }
 
 .center-play-button:hover {
@@ -872,37 +893,124 @@ video::cue {
 
 .cinema-screen.is-playing .center-play-button {
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
 }
 
-.cinema-screen:hover .center-play-button {
+.cinema-screen.is-playing:hover .center-play-button {
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
 }
+
+.cinema-stage.controls-hidden .center-play-button {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Player message */
 
 .player-message {
   position: absolute;
   left: 50%;
-  bottom: 24px;
-  z-index: 6;
+  bottom: 120px;
+  z-index: 50;
+
   max-width: min(90%, 680px);
   padding: 10px 14px;
-  color: #ffffff;
-  background: rgba(0, 0, 0, 0.82);
+
+  color: #fff;
+  background: rgba(0, 0, 0, 0.84);
+
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 10px;
+
   text-align: center;
   font-size: 13px;
+
   transform: translateX(-50%);
 }
 
+/* Floating controls */
+
 .cinema-controls {
-  padding: 14px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 40;
+
+  max-height: min(70vh, 640px);
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  padding:
+    58px
+    max(16px, env(safe-area-inset-right))
+    max(16px, calc(16px + env(safe-area-inset-bottom)))
+    max(16px, env(safe-area-inset-left));
+
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
-    #111115;
-  border-top: 1px solid var(--line);
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.98) 0%,
+      rgba(0, 0, 0, 0.92) 52%,
+      rgba(0, 0, 0, 0.12) 100%
+    );
+
+  border: 0;
+
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+
+  transition:
+    opacity 0.26s ease,
+    visibility 0.26s ease,
+    transform 0.26s ease;
 }
+
+.cinema-stage.controls-hidden .cinema-controls {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(18px);
+}
+
+.cinema-stage.controls-hidden {
+  cursor: none;
+}
+
+.cinema-stage::after {
+  content: "";
+
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+
+  height: 230px;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.74),
+      transparent
+    );
+
+  opacity: 1;
+  pointer-events: none;
+
+  transition: opacity 0.26s ease;
+}
+
+.cinema-stage.controls-hidden::after {
+  opacity: 0;
+}
+
+/* Controls layout */
 
 .control-row {
   display: flex;
@@ -914,28 +1022,39 @@ video::cue {
 .cinema-button {
   min-height: 38px;
   padding: 9px 13px;
+
   color: #dedee5;
-  background: #1c1c22;
-  border: 1px solid rgba(255, 255, 255, 0.11);
+  background: rgba(28, 28, 34, 0.94);
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 9px;
+
   font: inherit;
   font-size: 12px;
+
   cursor: pointer;
-  transition: background 0.18s ease, border-color 0.18s ease;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
 }
 
 .cinema-button:hover,
 .cinema-button.active {
-  color: #ffffff;
+  color: #fff;
   background: #292930;
-  border-color: rgba(239, 61, 54, 0.65);
+  border-color: rgba(239, 61, 54, 0.68);
+  transform: translateY(-1px);
 }
 
 .cinema-button.primary {
   min-width: 72px;
-  color: #ffffff;
+
+  color: #fff;
   background: var(--red);
   border-color: var(--red);
+
   font-weight: 700;
 }
 
@@ -944,16 +1063,23 @@ video::cue {
   min-width: 76px;
   min-height: 38px;
   padding: 8px 10px;
-  background: #1c1c22;
+
+  color: #fff;
+  background: rgba(28, 28, 34, 0.94);
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 9px;
+
   font-size: 12px;
 }
 
 .volume-control {
+  min-width: 155px;
+
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 155px;
+
   color: var(--muted);
   font-size: 12px;
 }
@@ -964,10 +1090,15 @@ video::cue {
 
 .progress-row {
   display: grid;
-  grid-template-columns: auto minmax(80px, 1fr) auto;
+  grid-template-columns:
+    minmax(42px, auto)
+    minmax(120px, 1fr)
+    minmax(42px, auto);
   gap: 10px;
   align-items: center;
+
   margin-top: 12px;
+
   color: var(--muted);
   font-size: 11px;
 }
@@ -979,19 +1110,25 @@ video::cue {
 
 .progress-slider {
   width: 100%;
+  min-width: 0;
   padding: 0;
 }
 
+/* Advanced settings */
+
 .advanced-panel {
   margin-top: 12px;
+
   color: var(--muted);
   border-top: 1px solid var(--line);
 }
 
 .advanced-panel summary {
   padding: 13px 2px 2px;
+
   color: #d7d7df;
   font-size: 13px;
+
   cursor: pointer;
 }
 
@@ -999,12 +1136,14 @@ video::cue {
   display: grid;
   grid-template-columns: repeat(4, minmax(130px, 1fr));
   gap: 12px;
+
   padding-top: 14px;
 }
 
 .settings-grid label {
   display: grid;
   gap: 7px;
+
   color: var(--muted);
   font-size: 11px;
 }
@@ -1024,13 +1163,16 @@ video::cue {
   flex-wrap: wrap;
   align-items: end;
   gap: 10px;
+
   margin-top: 15px;
 }
 
 .subtitle-upload {
+  min-width: min(100%, 280px);
+
   display: grid;
   gap: 6px;
-  min-width: min(100%, 280px);
+
   color: var(--muted);
   font-size: 11px;
 }
@@ -1040,10 +1182,14 @@ video::cue {
   font-size: 11px;
 }
 
+/* Movie information */
+
 .cinema-info {
   position: sticky;
   top: 96px;
+
   padding: 18px;
+
   background: rgba(21, 21, 25, 0.65);
   border: 1px solid var(--line);
   border-radius: 18px;
@@ -1053,6 +1199,8 @@ video::cue {
   font-size: clamp(32px, 4vw, 48px);
 }
 
+/* Theater mode */
+
 .cinema-layout.theater-mode {
   display: block;
 }
@@ -1061,39 +1209,69 @@ video::cue {
   width: 100%;
 }
 
-.cinema-layout.theater-mode .cinema-screen {
-  max-height: calc(100vh - 190px);
-}
-
 .cinema-layout.theater-mode .cinema-info {
   position: static;
+
   max-width: 900px;
   margin-top: 24px;
 }
 
-.cinema-stage:fullscreen {
-  width: 100vw;
-  height: 100vh;
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  background: #000000;
+/* True fullscreen */
+
+.cinema-stage:fullscreen,
+.cinema-stage.is-fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+
+  display: block !important;
+
+  background: #000;
   border: 0;
   border-radius: 0;
 }
 
-.cinema-stage:fullscreen .cinema-screen {
-  width: 100%;
-  height: 100%;
-  aspect-ratio: auto;
+.cinema-stage:fullscreen .cinema-screen,
+.cinema-stage.is-fullscreen .cinema-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  aspect-ratio: auto !important;
+}
+
+.cinema-stage:fullscreen .movie-player,
+.cinema-stage.is-fullscreen .movie-player {
+  width: 100% !important;
+  height: 100% !important;
+
+  object-fit: contain;
+}
+
+.cinema-stage:fullscreen .cinema-controls,
+.cinema-stage.is-fullscreen .cinema-controls {
+  padding:
+    78px
+    max(24px, env(safe-area-inset-right))
+    max(20px, calc(20px + env(safe-area-inset-bottom)))
+    max(24px, env(safe-area-inset-left));
+}
+
+.cinema-stage:fullscreen video::cue,
+.cinema-stage.is-fullscreen video::cue {
+  font-size: clamp(18px, 2.4vw, 34px);
+  line-height: 1.45;
 }
 
 video::cue {
-  color: #ffffff;
+  color: #fff;
   background: rgba(0, 0, 0, 0.82);
+
   font-family: Arial, Tahoma, sans-serif;
   font-size: clamp(16px, 2.2vw, 28px);
   line-height: 1.45;
 }
+
+/* Tablet */
 
 @media (max-width: 1050px) {
   .cinema-layout {
@@ -1109,500 +1287,9 @@ video::cue {
   }
 }
 
-@media (max-width: 650px) {
-  .detail-page.cinema-detail {
-    padding: 18px 12px 48px;
-  }
-
-  .cinema-stage {
-    border-radius: 13px;
-  }
-
-  .cinema-controls {
-    padding: 10px;
-  }
-
-  .main-control-row .cinema-button,
-  .main-control-row .cinema-select {
-    flex: 1 1 calc(33.333% - 8px);
-    min-width: 88px;
-  }
-
-  .volume-control {
-    flex: 1 1 100%;
-  }
-
-  .settings-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .center-play-button {
-    width: 58px;
-    height: 58px;
-    font-size: 22px;
-  }
-
-  .cinema-info {
-    padding: 16px;
-  }
-}
-/* =========================================
-   Auto-hide professional player controls
-   ========================================= */
-
-.cinema-stage {
-  position: relative;
-}
-
-/* وضع شريط التحكم فوق أسفل الفيديو بدل بقائه كمساحة ثابتة */
-.cinema-controls {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 20;
-
-  max-height: 65vh;
-  overflow-y: auto;
-
-  background:
-    linear-gradient(
-      to top,
-      rgba(5, 5, 7, 0.98) 0%,
-      rgba(10, 10, 13, 0.92) 68%,
-      rgba(10, 10, 13, 0.25) 100%
-    );
-
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-
-  transition:
-    opacity 0.3s ease,
-    visibility 0.3s ease,
-    transform 0.3s ease;
-}
-
-/* إخفاء الشريط أثناء التشغيل */
-.cinema-stage.controls-hidden .cinema-controls {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: translateY(100%);
-}
-
-/* إخفاء مؤشر الفأرة أيضًا */
-.cinema-stage.controls-hidden {
-  cursor: none;
-}
-
-/* إبقاء المؤشر ظاهرًا فوق عناصر التحكم */
-.cinema-controls,
-.cinema-controls * {
-  cursor: default;
-}
-
-.cinema-controls button,
-.cinema-controls input,
-.cinema-controls select,
-.cinema-controls summary,
-.cinema-controls label {
-  cursor: pointer;
-}
-
-/* تدرج سفلي بسيط عند ظهور أدوات التحكم */
-.cinema-stage::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 15;
-
-  height: 190px;
-
-  background:
-    linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.68),
-      transparent
-    );
-
-  opacity: 1;
-  pointer-events: none;
-
-  transition: opacity 0.3s ease;
-}
-
-.cinema-stage.controls-hidden::after {
-  opacity: 0;
-}
-
-/* الفيديو يملأ مساحة المشغل */
-.cinema-screen {
-  width: 100%;
-  min-height: 0;
-}
-
-/* في وضع ملء الشاشة */
-.cinema-stage:fullscreen {
-  display: block;
-}
-
-.cinema-stage:fullscreen .cinema-screen {
-  width: 100vw;
-  height: 100vh;
-}
-
-.cinema-stage:fullscreen .movie-player {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* الجوال والآيباد */
-@media (max-width: 650px) {
-  .cinema-controls {
-    max-height: 72vh;
-    padding: 10px;
-  }
-
-  .cinema-stage::after {
-    height: 240px;
-  }
-}
-/* ==========================================================
-   Home Cinema — Auto-hide player controls
-   ضع هذا القسم في نهاية static/css/app.css
-   ========================================================== */
-
-.cinema-stage {
-  position: relative;
-}
-
-/* شريط الأدوات يطفو فوق أسفل الفيديو */
-.cinema-controls {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 30;
-
-  max-height: min(68vh, 620px);
-  overflow-x: hidden;
-  overflow-y: auto;
-
-  background:
-    linear-gradient(
-      to top,
-      rgba(5, 5, 7, 0.99) 0%,
-      rgba(10, 10, 13, 0.95) 72%,
-      rgba(10, 10, 13, 0.30) 100%
-    );
-
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-
-  transition:
-    opacity 0.28s ease,
-    visibility 0.28s ease,
-    transform 0.28s ease;
-}
-
-/* إخفاء أدوات التحكم تلقائيًا أثناء التشغيل */
-.cinema-stage.controls-hidden .cinema-controls {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: translateY(100%);
-}
-
-/* إخفاء مؤشر الفأرة مع الشريط */
-.cinema-stage.controls-hidden {
-  cursor: none;
-}
-
-/* منع بقاء المؤشر مخفيًا فوق عناصر التحكم */
-.cinema-controls {
-  cursor: default;
-}
-
-.cinema-controls button,
-.cinema-controls input,
-.cinema-controls select,
-.cinema-controls summary,
-.cinema-controls label {
-  cursor: pointer;
-}
-
-/* تدرج سفلي يظهر مع الأدوات */
-.cinema-stage::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 20;
-
-  height: 210px;
-
-  background:
-    linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.72),
-      transparent
-    );
-
-  opacity: 1;
-  pointer-events: none;
-
-  transition: opacity 0.28s ease;
-}
-
-.cinema-stage.controls-hidden::after {
-  opacity: 0;
-}
-
-/* منع الشريط من إضافة مساحة سوداء أسفل الفيديو */
-.cinema-screen {
-  width: 100%;
-  min-height: 0;
-}
-
-/* ملء الشاشة */
-.cinema-stage:fullscreen {
-  width: 100vw;
-  height: 100vh;
-
-  display: block;
-
-  background: #000000;
-  border: 0;
-  border-radius: 0;
-}
-
-.cinema-stage:fullscreen .cinema-screen {
-  width: 100vw;
-  height: 100vh;
-  aspect-ratio: auto;
-}
-
-.cinema-stage:fullscreen .movie-player {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* إبقاء زر التشغيل الأوسط فوق الفيديو */
-.center-play-button {
-  z-index: 25;
-}
-
-/* الجوال والآيباد */
-@media (max-width: 650px) {
-  .cinema-controls {
-    max-height: 76vh;
-    padding: 10px;
-  }
-
-  .cinema-stage::after {
-    height: 260px;
-  }
-
-  .cinema-stage.controls-hidden {
-    cursor: default;
-  }
-}
-/* ==========================================================
-   Home Cinema — Professional Fullscreen + Responsive Controls
-   ألصق هذا القسم كاملًا في نهاية static/css/app.css
-   ========================================================== */
-
-.cinema-stage {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  background: #000;
-  border-radius: 18px;
-}
-
-.cinema-screen {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  min-height: 0;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background: #000;
-}
-
-.movie-player {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  background: #000;
-}
-
-/* شريط تحكم عائم فوق الفيديو */
-.cinema-controls {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 40;
-
-  max-height: min(68vh, 620px);
-  overflow-x: hidden;
-  overflow-y: auto;
-
-  padding:
-    56px
-    max(16px, env(safe-area-inset-right))
-    max(16px, calc(16px + env(safe-area-inset-bottom)))
-    max(16px, env(safe-area-inset-left));
-
-  background:
-    linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.98) 0%,
-      rgba(0, 0, 0, 0.90) 48%,
-      rgba(0, 0, 0, 0.16) 100%
-    );
-
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-
-  transition:
-    opacity 0.24s ease,
-    visibility 0.24s ease,
-    transform 0.24s ease;
-}
-
-.cinema-stage.controls-hidden .cinema-controls {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: translateY(18px);
-}
-
-.cinema-stage.controls-hidden {
-  cursor: none;
-}
-
-.cinema-stage::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 30;
-  height: 230px;
-  pointer-events: none;
-
-  background:
-    linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.74),
-      transparent
-    );
-
-  opacity: 1;
-  transition: opacity 0.24s ease;
-}
-
-.cinema-stage.controls-hidden::after {
-  opacity: 0;
-}
-
-.center-play-button {
-  z-index: 35;
-}
-
-.cinema-stage.controls-hidden .center-play-button {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.progress-row {
-  grid-template-columns:
-    minmax(42px, auto)
-    minmax(120px, 1fr)
-    minmax(42px, auto);
-}
-
-.progress-slider {
-  min-width: 0;
-}
-
-/* ملء الشاشة الحقيقي */
-.cinema-stage:fullscreen,
-.cinema-stage.is-fullscreen {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: none !important;
-  max-height: none !important;
-
-  display: block;
-
-  background: #000;
-  border: 0;
-  border-radius: 0;
-}
-
-.cinema-stage:fullscreen .cinema-screen,
-.cinema-stage.is-fullscreen .cinema-screen {
-  width: 100vw;
-  height: 100vh;
-  aspect-ratio: auto;
-}
-
-.cinema-stage:fullscreen .movie-player,
-.cinema-stage.is-fullscreen .movie-player {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.cinema-stage:fullscreen .cinema-controls,
-.cinema-stage.is-fullscreen .cinema-controls {
-  right: 0;
-  bottom: 0;
-  left: 0;
-
-  padding:
-    76px
-    max(24px, env(safe-area-inset-right))
-    max(20px, calc(20px + env(safe-area-inset-bottom)))
-    max(24px, env(safe-area-inset-left));
-}
-
-.cinema-stage:fullscreen video::cue,
-.cinema-stage.is-fullscreen video::cue {
-  font-size: clamp(18px, 2.4vw, 34px);
-  line-height: 1.45;
-}
-
-/* الأجهزة اللوحية */
 @media (max-width: 900px) {
   .cinema-stage {
     border-radius: 14px;
-  }
-
-  .cinema-controls {
-    padding:
-      50px
-      max(12px, env(safe-area-inset-right))
-      max(12px, calc(12px + env(safe-area-inset-bottom)))
-      max(12px, env(safe-area-inset-left));
-  }
-
-  .main-control-row {
-    gap: 8px;
   }
 
   .main-control-row .cinema-button,
@@ -1616,11 +1303,17 @@ video::cue {
   }
 }
 
-/* الجوال */
+/* Mobile */
+
 @media (max-width: 650px) {
   .detail-page.cinema-detail {
-    padding-right: 0;
-    padding-left: 0;
+    padding: 18px 0 48px;
+  }
+
+  .back-link,
+  .cinema-info {
+    margin-right: 12px;
+    margin-left: 12px;
   }
 
   .cinema-stage {
@@ -1642,6 +1335,7 @@ video::cue {
     flex: 1 1 calc(33.333% - 8px);
     min-width: 88px;
     min-height: 40px;
+
     padding: 8px 9px;
     font-size: 11px;
   }
@@ -1656,14 +1350,19 @@ video::cue {
     gap: 7px;
   }
 
-  .advanced-panel summary {
-    font-size: 12px;
+  .settings-grid {
+    grid-template-columns: 1fr;
   }
 
   .center-play-button {
     width: 58px;
     height: 58px;
+
     font-size: 22px;
+  }
+
+  .cinema-info {
+    padding: 16px;
   }
 
   .cinema-stage.controls-hidden {
@@ -1671,7 +1370,8 @@ video::cue {
   }
 }
 
-/* الجوال في الوضع الأفقي */
+/* Small landscape screens */
+
 @media (max-height: 520px) and (orientation: landscape) {
   .cinema-stage:fullscreen .cinema-controls,
   .cinema-stage.is-fullscreen .cinema-controls {
@@ -1688,6 +1388,7 @@ video::cue {
   .cinema-stage.is-fullscreen .main-control-row {
     flex-wrap: nowrap;
     overflow-x: auto;
+
     scrollbar-width: none;
   }
 
@@ -1702,6 +1403,7 @@ video::cue {
   .cinema-stage.is-fullscreen .cinema-select {
     flex: 0 0 auto;
     min-width: auto;
+
     white-space: nowrap;
   }
 
@@ -1710,9 +1412,9 @@ video::cue {
     flex: 0 0 170px;
   }
 
-  /* إخفاء الإعدادات المتقدمة في الشاشة الأفقية الصغيرة */
   .cinema-stage:fullscreen .advanced-panel,
   .cinema-stage.is-fullscreen .advanced-panel {
     display: none;
   }
 }
+
