@@ -1,20 +1,16 @@
-تم إصلاح المشكلتين:
+هذا الإصلاح خاص بصفحة الفيلم على الجوال.
 
-1) الاستجابة:
-   تم الحفاظ على تنسيقات movie-grid و movie-card الأصلية، وتنظيف CSS المكرر فقط.
+استبدل فقط:
+static/css/app.css
 
-2) Fullscreen:
-   تم إلغاء Fullscreen على عنصر الفيديو لأنه سبب STATUS_ACCESS_VIOLATION.
-   الآن يدخل cinema-stage إلى Fullscreen بشكل آمن، مع إخفاء الأدوات تلقائيًا.
+لا تحتاج لتعديل detail.html.
 
-التركيب:
-- استبدل movies/templates/movies/detail.html
-- استبدل static/css/app.css بالكامل
+النتيجة:
+- الفيديو أو الملصق يظهر أولًا.
+- أدوات التحكم تظهر أسفل الفيديو على الجوال بدل تغطية الفيديو.
+- في Fullscreen تعود الأدوات فوق الفيديو وتختفي تلقائيًا.
 
 ثم:
 git add .
-git commit -m "Fix responsive layout and fullscreen crash"
+git commit -m "Fix mobile movie page layout"
 git push
-
-بعد نجاح Railway:
-Ctrl + F5
