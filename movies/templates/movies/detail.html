@@ -597,23 +597,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
   controls.fullscreen.addEventListener("click", async function () {
     try {
+      clearControlsTimer();
+
       if (document.fullscreenElement) {
         await document.exitFullscreen();
+        stage.classList.remove("controls-hidden");
         return;
       }
 
       if (stage.requestFullscreen) {
         await stage.requestFullscreen();
+
+        if (!player.paused && !player.ended) {
+          stage.classList.add("controls-hidden");
+        }
+
         return;
       }
 
       if (player.webkitEnterFullscreen) {
         player.webkitEnterFullscreen();
+        stage.classList.add("controls-hidden");
         return;
       }
 
       throw new Error("Fullscreen unavailable");
     } catch (error) {
+      stage.classList.remove("controls-hidden");
       showMessage("Fullscreen is not available on this device.");
     }
   });
@@ -758,16 +768,24 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   document.addEventListener("fullscreenchange", function () {
+    const isFullscreen = Boolean(document.fullscreenElement);
+
     stage.classList.toggle(
       "is-fullscreen",
-      Boolean(document.fullscreenElement)
+      isFullscreen
     );
 
     updateFullscreenButton();
-    showPlayerControls();
+    clearControlsTimer();
 
-    if (!player.paused && !player.ended) {
-      scheduleControlsHide();
+    if (isFullscreen) {
+      if (!player.paused && !player.ended) {
+        stage.classList.add("controls-hidden");
+      } else {
+        stage.classList.remove("controls-hidden");
+      }
+    } else {
+      stage.classList.remove("controls-hidden");
     }
   });
 

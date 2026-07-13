@@ -1,20 +1,19 @@
-تم إصلاح المشكلة الفعلية:
+الإصلاح النهائي:
 
-1. ملف CSS كان يحتوي عدة نسخ مكررة ومتعارضة من:
-   .cinema-stage
-   .cinema-controls
-   :fullscreen
-   controls-hidden
-
-2. JavaScript كان يمنع إخفاء الشريط بعد الضغط على Fullscreen لأن زر
-   Fullscreen يظل في حالة hover/focus، فكانت الدالة تعتبر أن الأدوات يجب
-   أن تبقى ظاهرة دائمًا.
+- عند الضغط على Fullscreen أثناء تشغيل الفيلم:
+  تختفي الأدوات فورًا، وليس بعد 3 ثوانٍ.
+- عند تحريك الفأرة أو لمس الشاشة:
+  تظهر الأدوات مجددًا.
+- عند الخروج من Fullscreen:
+  تظهر الأدوات.
+- إذا كان الفيلم متوقفًا مؤقتًا:
+  تبقى الأدوات ظاهرة.
 
 التركيب:
-- استبدل movies/templates/movies/detail.html
-- استبدل static/css/app.css بالكامل، ولا تلصق فوق الملف القديم.
+استبدل فقط:
+movies/templates/movies/detail.html
 
 ثم:
 git add .
-git commit -m "Fix fullscreen controls and remove duplicate CSS"
+git commit -m "Hide controls immediately in fullscreen"
 git push
