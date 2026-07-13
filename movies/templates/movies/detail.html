@@ -317,6 +317,12 @@ document.addEventListener("DOMContentLoaded", function () {
     scheduleControlsHide();
   }
 
+  function updateFullscreenButton() {
+    controls.fullscreen.textContent = document.fullscreenElement
+      ? "Exit Fullscreen"
+      : "Fullscreen";
+  }
+
   function formatTime(seconds) {
     if (!Number.isFinite(seconds)) return "00:00";
 
@@ -601,13 +607,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
   controls.fullscreen.addEventListener("click", async function () {
     try {
-      if (!document.fullscreenElement) {
-        await stage.requestFullscreen();
-      } else {
+      if (document.fullscreenElement) {
         await document.exitFullscreen();
+        return;
       }
+
+      if (stage.requestFullscreen) {
+        await stage.requestFullscreen();
+        return;
+      }
+
+      if (player.webkitEnterFullscreen) {
+        player.webkitEnterFullscreen();
+        return;
+      }
+
+      throw new Error("Fullscreen unavailable");
     } catch (error) {
-      showMessage("Fullscreen is not available in this browser.");
+      showMessage("Fullscreen is not available on this device.");
     }
   });
 
@@ -744,7 +761,21 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   document.addEventListener("fullscreenchange", function () {
+    stage.classList.toggle(
+      "is-fullscreen",
+      Boolean(document.fullscreenElement)
+    );
+
+    updateFullscreenButton();
     showPlayerControls();
+  });
+
+  player.addEventListener("webkitbeginfullscreen", function () {
+    stage.classList.add("is-fullscreen");
+  });
+
+  player.addEventListener("webkitendfullscreen", function () {
+    stage.classList.remove("is-fullscreen");
   });
 
   window.addEventListener("beforeunload", function () {
@@ -767,6 +798,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeSource();
   applyPictureFilters();
   updatePlayButtons();
+  updateFullscreenButton();
   stage.classList.remove("controls-hidden");
 });
 </script>

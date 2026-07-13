@@ -1414,3 +1414,305 @@ video::cue {
     cursor: default;
   }
 }
+/* ==========================================================
+   Home Cinema — Professional Fullscreen + Responsive Controls
+   ألصق هذا القسم كاملًا في نهاية static/css/app.css
+   ========================================================== */
+
+.cinema-stage {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: #000;
+  border-radius: 18px;
+}
+
+.cinema-screen {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #000;
+}
+
+.movie-player {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+/* شريط تحكم عائم فوق الفيديو */
+.cinema-controls {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 40;
+
+  max-height: min(68vh, 620px);
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  padding:
+    56px
+    max(16px, env(safe-area-inset-right))
+    max(16px, calc(16px + env(safe-area-inset-bottom)))
+    max(16px, env(safe-area-inset-left));
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.98) 0%,
+      rgba(0, 0, 0, 0.90) 48%,
+      rgba(0, 0, 0, 0.16) 100%
+    );
+
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+
+  transition:
+    opacity 0.24s ease,
+    visibility 0.24s ease,
+    transform 0.24s ease;
+}
+
+.cinema-stage.controls-hidden .cinema-controls {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(18px);
+}
+
+.cinema-stage.controls-hidden {
+  cursor: none;
+}
+
+.cinema-stage::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  height: 230px;
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.74),
+      transparent
+    );
+
+  opacity: 1;
+  transition: opacity 0.24s ease;
+}
+
+.cinema-stage.controls-hidden::after {
+  opacity: 0;
+}
+
+.center-play-button {
+  z-index: 35;
+}
+
+.cinema-stage.controls-hidden .center-play-button {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.progress-row {
+  grid-template-columns:
+    minmax(42px, auto)
+    minmax(120px, 1fr)
+    minmax(42px, auto);
+}
+
+.progress-slider {
+  min-width: 0;
+}
+
+/* ملء الشاشة الحقيقي */
+.cinema-stage:fullscreen,
+.cinema-stage.is-fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+
+  display: block;
+
+  background: #000;
+  border: 0;
+  border-radius: 0;
+}
+
+.cinema-stage:fullscreen .cinema-screen,
+.cinema-stage.is-fullscreen .cinema-screen {
+  width: 100vw;
+  height: 100vh;
+  aspect-ratio: auto;
+}
+
+.cinema-stage:fullscreen .movie-player,
+.cinema-stage.is-fullscreen .movie-player {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cinema-stage:fullscreen .cinema-controls,
+.cinema-stage.is-fullscreen .cinema-controls {
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  padding:
+    76px
+    max(24px, env(safe-area-inset-right))
+    max(20px, calc(20px + env(safe-area-inset-bottom)))
+    max(24px, env(safe-area-inset-left));
+}
+
+.cinema-stage:fullscreen video::cue,
+.cinema-stage.is-fullscreen video::cue {
+  font-size: clamp(18px, 2.4vw, 34px);
+  line-height: 1.45;
+}
+
+/* الأجهزة اللوحية */
+@media (max-width: 900px) {
+  .cinema-stage {
+    border-radius: 14px;
+  }
+
+  .cinema-controls {
+    padding:
+      50px
+      max(12px, env(safe-area-inset-right))
+      max(12px, calc(12px + env(safe-area-inset-bottom)))
+      max(12px, env(safe-area-inset-left));
+  }
+
+  .main-control-row {
+    gap: 8px;
+  }
+
+  .main-control-row .cinema-button,
+  .main-control-row .cinema-select {
+    flex: 1 1 calc(25% - 8px);
+    min-width: 105px;
+  }
+
+  .volume-control {
+    flex: 1 1 100%;
+  }
+}
+
+/* الجوال */
+@media (max-width: 650px) {
+  .detail-page.cinema-detail {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .cinema-stage {
+    border-radius: 0;
+  }
+
+  .cinema-controls {
+    max-height: 78vh;
+
+    padding:
+      44px
+      max(10px, env(safe-area-inset-right))
+      max(10px, calc(10px + env(safe-area-inset-bottom)))
+      max(10px, env(safe-area-inset-left));
+  }
+
+  .main-control-row .cinema-button,
+  .main-control-row .cinema-select {
+    flex: 1 1 calc(33.333% - 8px);
+    min-width: 88px;
+    min-height: 40px;
+    padding: 8px 9px;
+    font-size: 11px;
+  }
+
+  .volume-control {
+    order: 10;
+    flex: 1 1 100%;
+  }
+
+  .progress-row {
+    grid-template-columns: 38px minmax(70px, 1fr) 38px;
+    gap: 7px;
+  }
+
+  .advanced-panel summary {
+    font-size: 12px;
+  }
+
+  .center-play-button {
+    width: 58px;
+    height: 58px;
+    font-size: 22px;
+  }
+
+  .cinema-stage.controls-hidden {
+    cursor: default;
+  }
+}
+
+/* الجوال في الوضع الأفقي */
+@media (max-height: 520px) and (orientation: landscape) {
+  .cinema-stage:fullscreen .cinema-controls,
+  .cinema-stage.is-fullscreen .cinema-controls {
+    max-height: 92vh;
+
+    padding:
+      46px
+      max(14px, env(safe-area-inset-right))
+      max(8px, calc(8px + env(safe-area-inset-bottom)))
+      max(14px, env(safe-area-inset-left));
+  }
+
+  .cinema-stage:fullscreen .main-control-row,
+  .cinema-stage.is-fullscreen .main-control-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .cinema-stage:fullscreen .main-control-row::-webkit-scrollbar,
+  .cinema-stage.is-fullscreen .main-control-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cinema-stage:fullscreen .cinema-button,
+  .cinema-stage:fullscreen .cinema-select,
+  .cinema-stage.is-fullscreen .cinema-button,
+  .cinema-stage.is-fullscreen .cinema-select {
+    flex: 0 0 auto;
+    min-width: auto;
+    white-space: nowrap;
+  }
+
+  .cinema-stage:fullscreen .volume-control,
+  .cinema-stage.is-fullscreen .volume-control {
+    flex: 0 0 170px;
+  }
+
+  /* إخفاء الإعدادات المتقدمة في الشاشة الأفقية الصغيرة */
+  .cinema-stage:fullscreen .advanced-panel,
+  .cinema-stage.is-fullscreen .advanced-panel {
+    display: none;
+  }
+}
