@@ -276,6 +276,16 @@ document.addEventListener("DOMContentLoaded", function () {
       return true;
     }
 
+    if (
+      controlsPanel &&
+      (
+        controlsPanel.matches(":hover") ||
+        controlsPanel.contains(document.activeElement)
+      )
+    ) {
+      return true;
+    }
+
     return false;
   }
 
@@ -518,7 +528,13 @@ document.addEventListener("DOMContentLoaded", function () {
     togglePlayback();
   });
 
-  player.addEventListener("click", togglePlayback);
+  player.addEventListener("click", function () {
+    if (player.controls) {
+      return;
+    }
+
+    togglePlayback();
+  });
 
   player.addEventListener("play", function () {
     updatePlayButtons();
@@ -601,28 +617,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (document.fullscreenElement) {
         await document.exitFullscreen();
-        stage.classList.remove("controls-hidden");
         return;
       }
 
-      if (stage.requestFullscreen) {
-        await stage.requestFullscreen();
+      /*
+       * Fullscreen the video element itself.
+       * This keeps the site's custom toolbar outside fullscreen.
+       * The browser then shows native video controls that auto-hide.
+       */
+      player.controls = true;
 
-        if (!player.paused && !player.ended) {
-          stage.classList.add("controls-hidden");
-        }
-
+      if (player.requestFullscreen) {
+        await player.requestFullscreen();
         return;
       }
 
       if (player.webkitEnterFullscreen) {
         player.webkitEnterFullscreen();
+        return;
+      }
+
+      if (stage.requestFullscreen) {
+        await stage.requestFullscreen();
         stage.classList.add("controls-hidden");
         return;
       }
 
       throw new Error("Fullscreen unavailable");
     } catch (error) {
+      player.controls = false;
       stage.classList.remove("controls-hidden");
       showMessage("Fullscreen is not available on this device.");
     }
@@ -738,20 +761,13 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   if (controlsPanel) {
-    controlsPanel.addEventListener("pointerdown", clearControlsTimer);
-    controlsPanel.addEventListener("pointerup", scheduleControlsHide);
-    controlsPanel.addEventListener("pointercancel", scheduleControlsHide);
-
+    controlsPanel.addEventListener("mouseenter", clearControlsTimer);
+    controlsPanel.addEventListener("mouseleave", scheduleControlsHide);
+    controlsPanel.addEventListener("focusin", clearControlsTimer);
+    controlsPanel.addEventListener("focusout", scheduleControlsHide);
     controlsPanel.addEventListener("click", function (event) {
       event.stopPropagation();
       showPlayerControls();
-
-      if (
-        event.target instanceof HTMLElement &&
-        event.target.matches("button")
-      ) {
-        event.target.blur();
-      }
     });
   }
 
@@ -768,33 +784,52 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   document.addEventListener("fullscreenchange", function () {
-    const isFullscreen = Boolean(document.fullscreenElement);
-
-    stage.classList.toggle(
-      "is-fullscreen",
-      isFullscreen
-    );
+    const videoIsFullscreen = document.fullscreenElement === player;
+    const stageIsFullscreen = document.fullscreenElement === stage;
 
     updateFullscreenButton();
     clearControlsTimer();
 
-    if (isFullscreen) {
-      if (!player.paused && !player.ended) {
-        stage.classList.add("controls-hidden");
-      } else {
-        stage.classList.remove("controls-hidden");
-      }
-    } else {
-      stage.classList.remove("controls-hidden");
+    if (videoIsFullscreen) {
+      stage.classList.add(
+        "native-video-fullscreen",
+        "controls-hidden"
+      );
+      return;
     }
+
+    if (stageIsFullscreen) {
+      stage.classList.add("controls-hidden");
+      return;
+    }
+
+    player.controls = false;
+    stage.classList.remove(
+      "native-video-fullscreen",
+      "controls-hidden"
+    );
+
+    updatePlayButtons();
   });
 
   player.addEventListener("webkitbeginfullscreen", function () {
-    stage.classList.add("is-fullscreen");
+    player.controls = true;
+
+    stage.classList.add(
+      "native-video-fullscreen",
+      "controls-hidden"
+    );
   });
 
   player.addEventListener("webkitendfullscreen", function () {
-    stage.classList.remove("is-fullscreen");
+    player.controls = false;
+
+    stage.classList.remove(
+      "native-video-fullscreen",
+      "controls-hidden"
+    );
+
+    updatePlayButtons();
   });
 
   window.addEventListener("beforeunload", function () {
