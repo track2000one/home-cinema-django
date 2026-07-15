@@ -1,0 +1,21 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div id="content-main" style="max-width:980px">
+  <h1>{{ title }}</h1>
+  <p>Paste all episode links at once. Seasons and episodes will be created automatically.</p>
+  <pre style="padding:14px;background:var(--darkened-bg);border-radius:8px;line-height:1.8">https://drive.google.com/file/d/FILE_ID/view
+Episode title | https://drive.google.com/file/d/FILE_ID/view
+S01E01 | Episode title | https://drive.google.com/file/d/FILE_ID/view</pre>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(180px,1fr));gap:18px;margin:18px 0">
+      <div>{{ form.default_season_number.label_tag }}<br>{{ form.default_season_number }}<p class="help">{{ form.default_season_number.help_text }}</p></div>
+      <div>{{ form.start_episode_number.label_tag }}<br>{{ form.start_episode_number }}<p class="help">{{ form.start_episode_number.help_text }}</p></div>
+    </div>
+    <div>{{ form.episode_links.label_tag }}<br>{{ form.episode_links }}<p class="help">{{ form.episode_links.help_text }}</p>{{ form.episode_links.errors }}</div>
+    <div class="submit-row"><input type="submit" value="Import episodes" class="default"><a href="{% url 'admin:series_series_change' series.pk %}" class="button cancel-link">Cancel</a></div>
+  </form>
+</div>
+<style>#id_episode_links{width:100%;min-height:360px;font-family:Consolas,monospace;line-height:1.7}@media(max-width:700px){#content-main>form>div{grid-template-columns:1fr!important}}</style>
+{% endblock %}
