@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ series.title }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'series/series.css' %}">
+<section class="series-detail-page">
+  <a class="series-back" href="{% url 'series:library' %}">← Back to series</a>
+
+  <div class="series-detail-hero" {% if series.backdrop %}style="background-image:linear-gradient(90deg,rgba(8,8,10,.98),rgba(8,8,10,.45)),url('{{ series.backdrop.url }}');"{% endif %}>
+    <div class="series-detail-copy">
+      <span class="series-kicker">{{ series.genre|default:"Series" }}</span>
+      <h1>{{ series.title }}</h1>
+      <div class="series-detail-meta">
+        <span>{{ series.year|default:"—" }}</span>
+        <span>{{ series.seasons.count }} Seasons</span>
+        <span>{{ series.episode_count }} Episodes</span>
+      </div>
+      <p>{{ series.description|default:"No description available." }}</p>
+    </div>
+    {% if series.poster %}<img class="series-detail-poster" src="{{ series.poster.url }}" alt="{{ series.title }}">{% endif %}
+  </div>
+
+  <div class="season-stack">
+    {% for season in seasons %}
+    <section class="season-section">
+      <div class="season-heading">
+        <div><span class="season-number">Season {{ season.number }}</span><h2>{{ season.display_title }}</h2></div>
+        <span class="season-count">{{ season.episodes.count }} Episodes</span>
+      </div>
+      <div class="episode-grid">
+        {% for episode in season.episodes.all %}
+        <a class="episode-card" href="{% url 'series:episode' series.slug episode.pk %}">
+          <div class="episode-thumb">
+            {% if episode.thumbnail %}<img src="{{ episode.thumbnail.url }}" alt="{{ episode.display_title }}">
+            {% elif series.backdrop %}<img src="{{ series.backdrop.url }}" alt="{{ episode.display_title }}">
+            {% elif series.poster %}<img src="{{ series.poster.url }}" alt="{{ episode.display_title }}">
+            {% else %}<div class="episode-thumb-empty">▶</div>{% endif %}
+            <span class="episode-play">▶</span>
+          </div>
+          <div class="episode-card-body"><span class="episode-code">{{ episode.code }}</span><h3>{{ episode.display_title }}</h3>{% if episode.duration_text %}<span class="episode-duration">{{ episode.duration_text }}</span>{% endif %}</div>
+        </a>
+        {% empty %}<div class="series-empty">No episodes in this season.</div>{% endfor %}
+      </div>
+    </section>
+    {% empty %}<div class="series-empty">No seasons have been added yet.</div>{% endfor %}
+  </div>
+</section>
+{% endblock %}

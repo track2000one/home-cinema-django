@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ episode.display_title }} — {{ series.title }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'series/series.css' %}">
+<section class="episode-page">
+  <div class="episode-breadcrumbs"><a href="{% url 'series:library' %}">Series</a><span>›</span><a href="{% url 'series:detail' series.slug %}">{{ series.title }}</a><span>›</span><strong>{{ episode.code }}</strong></div>
+  <div class="episode-layout">
+    <main class="episode-player-card">
+      <div class="episode-player-head"><div><span>{{ episode.code }}</span><h1>{{ episode.display_title }}</h1></div><span class="episode-source">{{ episode.source_label }}</span></div>
+      <div class="episode-video-wrap">
+        {% if player_source_url %}
+        <video id="episode-player" class="episode-video" controls playsinline preload="metadata" {% if episode.thumbnail %}poster="{{ episode.thumbnail.url }}"{% endif %}>
+          {% if player_source_type != "hls" %}<source src="{{ player_source_url }}" type="video/mp4">{% endif %}
+          {% if episode.converted_subtitle %}<track src="{{ episode.converted_subtitle.url }}" kind="subtitles" srclang="ar" label="العربية" default>{% endif %}
+        </video>
+        {% else %}<div class="episode-video-error">No video source is configured for this episode.</div>{% endif %}
+      </div>
+      <div class="episode-navigation">
+        {% if previous_episode %}<a href="{% url 'series:episode' series.slug previous_episode.pk %}">← {{ previous_episode.display_title }}</a>{% else %}<span></span>{% endif %}
+        {% if next_episode %}<a href="{% url 'series:episode' series.slug next_episode.pk %}">{{ next_episode.display_title }} →</a>{% endif %}
+      </div>
+      {% if episode.description %}<div class="episode-description"><h2>Episode description</h2><p>{{ episode.description }}</p></div>{% endif %}
+    </main>
+    <aside class="episode-sidebar">
+      <div class="episode-sidebar-head"><span>Season {{ season.number }}</span><h2>{{ season.display_title }}</h2></div>
+      <div class="episode-list">
+        {% for item in season_episodes %}
+        <a class="episode-list-item {% if item.pk == episode.pk %}active{% endif %}" href="{% url 'series:episode' series.slug item.pk %}">
+          <span class="episode-list-number">{{ item.number }}</span><div><strong>{{ item.display_title }}</strong><small>{{ item.duration_text|default:item.code }}</small></div>
+        </a>
+        {% endfor %}
+      </div>
+    </aside>
+  </div>
+</section>
+{% if player_source_type == "hls" %}
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.13/dist/hls.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded",function(){const p=document.getElementById("episode-player"),s="{{ player_source_url|escapejs }}";if(!p||!s)return;if(p.canPlayType("application/vnd.apple.mpegurl")){p.src=s;return}if(window.Hls&&window.Hls.isSupported()){const h=new window.Hls();h.loadSource(s);h.attachMedia(p)}});</script>
+{% endif %}
+{% endblock %}

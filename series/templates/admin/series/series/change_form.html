@@ -1,0 +1,8 @@
+{% extends "admin/change_form.html" %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+  {% if original %}
+  <li><a href="{% url 'admin:series_series_import_episodes' original.pk %}" class="addlink">Bulk import episode links</a></li>
+  {% endif %}
+{% endblock %}
