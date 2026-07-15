@@ -10,51 +10,23 @@ from django.utils._os import safe_join
 
 def serve_media(request, path):
     try:
-        full_path = Path(
-            safe_join(
-                str(settings.MEDIA_ROOT),
-                path,
-            )
-        )
+        full_path = Path(safe_join(str(settings.MEDIA_ROOT), path))
     except Exception as error:
         raise Http404("Invalid media path.") from error
 
     if not full_path.exists() or not full_path.is_file():
         raise Http404("Media file not found.")
 
-    content_type = (
-        mimetypes.guess_type(full_path.name)[0]
-        or "application/octet-stream"
-    )
-
-    response = FileResponse(
-        full_path.open("rb"),
-        content_type=content_type,
-    )
-
-    response["Content-Disposition"] = (
-        f'inline; filename="{full_path.name}"'
-    )
-
+    content_type = mimetypes.guess_type(full_path.name)[0] or "application/octet-stream"
+    response = FileResponse(full_path.open("rb"), content_type=content_type)
+    response["Content-Disposition"] = f'inline; filename="{full_path.name}"'
     return response
 
 
 urlpatterns = [
-    path(
-        "admin/",
-        admin.site.urls,
-    ),
-    path(
-        "accounts/",
-        include("django.contrib.auth.urls"),
-    ),
-    path(
-        "media/<path:path>",
-        serve_media,
-        name="serve_media",
-    ),
-    path(
-        "",
-        include("movies.urls"),
-    ),
+    path("admin/", admin.site.urls),
+    path("accounts/", include("django.contrib.auth.urls")),
+    path("media/<path:path>", serve_media, name="serve_media"),
+    path("series/", include("series.urls")),
+    path("", include("movies.urls")),
 ]
