@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Series{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'series/series.css' %}">
+<section class="series-page">
+  <div class="series-hero">
+    <div>
+      <span class="series-kicker">Home Cinema</span>
+      <h1>Series Library</h1>
+      <p>Browse complete series, seasons, and episodes from one organized streaming library.</p>
+    </div>
+  </div>
+
+  <form class="series-search" method="get">
+    <input type="search" name="q" value="{{ query }}" placeholder="Search series...">
+    <select name="genre">
+      <option value="">All genres</option>
+      {% for genre in genres %}
+      <option value="{{ genre }}" {% if selected_genre == genre %}selected{% endif %}>{{ genre }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Search</button>
+  </form>
+
+  <div class="series-grid">
+    {% for item in series_items %}
+    <a class="series-card" href="{% url 'series:detail' item.slug %}">
+      <div class="series-poster">
+        {% if item.poster %}
+        <img src="{{ item.poster.url }}" alt="{{ item.title }}">
+        {% else %}
+        <div class="series-poster-empty">SERIES</div>
+        {% endif %}
+        <div class="series-card-overlay">
+          <span>{{ item.seasons.count }} Seasons</span>
+          <span>{{ item.episode_count }} Episodes</span>
+        </div>
+      </div>
+      <div class="series-card-body">
+        <h2>{{ item.title }}</h2>
+        <div class="series-meta"><span>{{ item.year|default:"—" }}</span><span>{{ item.genre|default:"Series" }}</span></div>
+      </div>
+    </a>
+    {% empty %}
+    <div class="series-empty">No series found.</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
