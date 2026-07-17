@@ -24,34 +24,9 @@ def serve_media(request, path):
 
 
 urlpatterns = [
-<<<<<<< HEAD
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
     path("media/<path:path>", serve_media, name="serve_media"),
     path("series/", include("series.urls")),
     path("", include("movies.urls")),
 ]
-=======
-    path(
-        "admin/",
-        admin.site.urls,
-    ),
-    path(
-        "accounts/",
-        include("django.contrib.auth.urls"),
-    ),
-    path(
-        "media/<path:path>",
-        serve_media,
-        name="serve_media",
-    ),
-    path(
-    "series/",
-    include("series.urls"),
-    ),
-    path(
-        "",
-        include("movies.urls"),
-    ),
-]
->>>>>>> 2347441 (Improve Safari player and double tap controls)

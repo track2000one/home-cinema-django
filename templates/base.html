@@ -16,11 +16,7 @@
 
   {% if user.is_authenticated %}
   <nav>
-<<<<<<< HEAD
     <a href="{% url 'movies:library' %}">Movies</a>
-=======
-    <a href="{% url 'movies:library' %}">Home</a>
->>>>>>> 2347441 (Improve Safari player and double tap controls)
     <a href="{% url 'series:library' %}">Series</a>
     {% if user.is_staff %}<a href="/admin/">Admin</a>{% endif %}
     <form method="post" action="{% url 'logout' %}">
