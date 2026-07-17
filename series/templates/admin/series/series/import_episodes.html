@@ -1,4 +1,5 @@
 {% extends "admin/base_site.html" %}
+<<<<<<< HEAD
 {% block content %}
 <div id="content-main" style="max-width:980px">
   <h1>{{ title }}</h1>
@@ -18,4 +19,138 @@ S01E01 | Episode title | https://drive.google.com/file/d/FILE_ID/view</pre>
   </form>
 </div>
 <style>#id_episode_links{width:100%;min-height:360px;font-family:Consolas,monospace;line-height:1.7}@media(max-width:700px){#content-main>form>div{grid-template-columns:1fr!important}}</style>
+=======
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  .series-import-card {
+    max-width: 980px;
+    padding: 24px;
+    background: var(--body-bg);
+    border: 1px solid var(--hairline-color);
+    border-radius: 12px;
+  }
+
+  .series-import-card textarea {
+    width: 100%;
+    min-height: 360px;
+    font-family: Consolas, monospace;
+    line-height: 1.7;
+  }
+
+  .series-import-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+    gap: 18px;
+  }
+
+  .series-import-field {
+    margin-bottom: 18px;
+  }
+
+  .series-import-field label {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: 700;
+  }
+
+  .series-import-help {
+    margin-top: 7px;
+    color: var(--body-quiet-color);
+  }
+
+  .series-import-examples {
+    margin: 18px 0;
+    padding: 14px;
+    background: var(--darkened-bg);
+    border-radius: 8px;
+    font-family: Consolas, monospace;
+    line-height: 1.8;
+  }
+
+  @media (max-width: 700px) {
+    .series-import-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <div class="series-import-card">
+    <h1>{{ title }}</h1>
+
+    <p>
+      Paste all episode links at once. Seasons and episodes will be
+      created automatically.
+    </p>
+
+    <div class="series-import-examples">
+      https://drive.google.com/file/d/FILE_ID/view<br>
+      Episode title | https://drive.google.com/file/d/FILE_ID/view<br>
+      S01E01 | Episode title | https://drive.google.com/file/d/FILE_ID/view
+    </div>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="errornote">
+        {{ form.non_field_errors }}
+      </div>
+      {% endif %}
+
+      <div class="series-import-grid">
+        <div class="series-import-field">
+          {{ form.default_season_number.label_tag }}
+          {{ form.default_season_number }}
+          <div class="series-import-help">
+            {{ form.default_season_number.help_text }}
+          </div>
+        </div>
+
+        <div class="series-import-field">
+          {{ form.start_episode_number.label_tag }}
+          {{ form.start_episode_number }}
+          <div class="series-import-help">
+            {{ form.start_episode_number.help_text }}
+          </div>
+        </div>
+      </div>
+
+      <div class="series-import-field">
+        {{ form.episode_links.label_tag }}
+        {{ form.episode_links }}
+        <div class="series-import-help">
+          {{ form.episode_links.help_text }}
+        </div>
+
+        {% if form.episode_links.errors %}
+        <div class="errornote">
+          {{ form.episode_links.errors }}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="submit-row">
+        <input
+          type="submit"
+          value="Import episodes"
+          class="default"
+        >
+
+        <a
+          href="{% url 'admin:series_series_change' series.pk %}"
+          class="button cancel-link"
+        >
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+>>>>>>> 2347441 (Improve Safari player and double tap controls)
 {% endblock %}

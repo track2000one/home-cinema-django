@@ -1,0 +1,8 @@
+ffmpeg -i "C:\movies\Tom and Jerry - S1940E46 - Tennis Chumps.avi" `
+  -c:v libx264 `
+  -preset medium `
+  -crf 22 `
+  -c:a aac `
+  -b:a 192k `
+  -movflags +faststart `
+  "C:\movies\Tom and Jerry - S1940E46 - Tennis Chumps.mp4"
