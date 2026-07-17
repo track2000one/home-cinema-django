@@ -4,7 +4,7 @@
 {% block title %}{{ movie.title }}{% endblock %}
 
 {% block content %}
-<!-- PLAYER_VERSION: STAGE_FULLSCREEN_V3 -->
+<!-- PLAYER_VERSION: SAFARI_DOUBLE_TAP_V4 -->
 <section class="detail-page cinema-detail">
 
   <a class="back-link" href="{% url 'movies:library' %}">
@@ -23,6 +23,8 @@
           class="movie-player"
           preload="metadata"
           playsinline
+          webkit-playsinline
+          x-webkit-airplay="allow"
           {% if movie.poster %}poster="{{ movie.poster.url }}"{% endif %}
           data-source-type="{{ player_source_type }}"
           data-resume-key="home-cinema-{{ movie.pk }}"
@@ -248,6 +250,13 @@ document.addEventListener("DOMContentLoaded", function () {
   let lastSavedSecond = -1;
   let controlsHideTimer = null;
   let lastPointerMoveTime = 0;
+  let screenTapTimer = null;
+  let screenTapCount = 0;
+  let suppressControlReveal = false;
+  const isIOSDevice = (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
 
   const controlsPanel = document.getElementById("cinema-controls");
   const advancedPanel = document.querySelector(".advanced-panel");
@@ -520,16 +529,64 @@ document.addEventListener("DOMContentLoaded", function () {
     togglePlayback();
   });
 
-  player.addEventListener("click", togglePlayback);
+  function handleSingleScreenTap() {
+    suppressControlReveal = true;
+
+    togglePlayback().finally(function () {
+      window.setTimeout(function () {
+        suppressControlReveal = false;
+      }, 80);
+    });
+  }
+
+  function handleScreenPointerUp(event) {
+    if (
+      event.target.closest(".cinema-controls") ||
+      event.target.closest(".center-play-button")
+    ) {
+      return;
+    }
+
+    screenTapCount += 1;
+
+    if (screenTapCount === 1) {
+      screenTapTimer = window.setTimeout(function () {
+        screenTapCount = 0;
+        handleSingleScreenTap();
+      }, 280);
+
+      return;
+    }
+
+    window.clearTimeout(screenTapTimer);
+    screenTapTimer = null;
+    screenTapCount = 0;
+
+    showPlayerControls();
+  }
+
+  screen.addEventListener("pointerup", handleScreenPointerUp);
 
   player.addEventListener("play", function () {
     updatePlayButtons();
+
+    if (suppressControlReveal) {
+      stage.classList.add("controls-hidden");
+      return;
+    }
+
     showPlayerControls();
   });
 
   player.addEventListener("pause", function () {
     updatePlayButtons();
     clearControlsTimer();
+
+    if (suppressControlReveal) {
+      stage.classList.add("controls-hidden");
+      return;
+    }
+
     stage.classList.remove("controls-hidden");
   });
 
@@ -607,12 +664,29 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      if (!stage.requestFullscreen) {
-        throw new Error("Fullscreen unavailable");
+      if (
+        isIOSDevice &&
+        typeof player.webkitEnterFullscreen === "function"
+      ) {
+        player.controls = true;
+        player.webkitEnterFullscreen();
+        return;
       }
 
-      await stage.requestFullscreen();
+      if (stage.requestFullscreen) {
+        await stage.requestFullscreen();
+        return;
+      }
+
+      if (typeof player.webkitEnterFullscreen === "function") {
+        player.controls = true;
+        player.webkitEnterFullscreen();
+        return;
+      }
+
+      throw new Error("Fullscreen unavailable");
     } catch (error) {
+      player.controls = false;
       showMessage("Fullscreen is not available on this device.");
     }
   });
@@ -712,13 +786,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   stage.addEventListener("mouseenter", showPlayerControls);
 
-  stage.addEventListener(
-    "touchstart",
-    showPlayerControls,
-    { passive: true }
-  );
-
-  stage.addEventListener("pointerdown", showPlayerControls);
 
   stage.addEventListener("mouseleave", function () {
     if (!player.paused && !player.ended) {
@@ -769,6 +836,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   window.addEventListener("beforeunload", function () {
     clearControlsTimer();
+    if (screenTapTimer !== null) {
+      window.clearTimeout(screenTapTimer);
+    }
 
     localStorage.setItem(
       player.dataset.resumeKey,
