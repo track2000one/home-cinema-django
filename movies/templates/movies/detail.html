@@ -4,7 +4,7 @@
 {% block title %}{{ movie.title }}{% endblock %}
 
 {% block content %}
-<!-- PLAYER_VERSION: SAFARI_DOUBLE_TAP_V4 -->
+<!-- PLAYER_VERSION: PRO_TOUCH_PLAYER_V5 -->
 <section class="detail-page cinema-detail">
 
   <a class="back-link" href="{% url 'movies:library' %}">
@@ -65,6 +65,11 @@
         </div>
         {% endif %}
 
+      </div>
+
+      <div class="player-hint-bar">
+        <span>Tap once: Play / Pause</span>
+        <span>Double tap: Show controls</span>
       </div>
 
       {% if movie.video_path or player_source_url %}
@@ -250,9 +255,9 @@ document.addEventListener("DOMContentLoaded", function () {
   let lastSavedSecond = -1;
   let controlsHideTimer = null;
   let lastPointerMoveTime = 0;
-  let screenTapTimer = null;
-  let screenTapCount = 0;
-  let suppressControlReveal = false;
+  let tapCount = 0;
+  let tapTimer = null;
+  let suppressAutoReveal = false;
   const isIOSDevice = (
     /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
@@ -316,6 +321,20 @@ document.addEventListener("DOMContentLoaded", function () {
   function showPlayerControls() {
     stage.classList.remove("controls-hidden");
     scheduleControlsHide();
+  }
+
+  function showControlsOnly() {
+    clearControlsTimer();
+    stage.classList.remove("controls-hidden");
+    scheduleControlsHide();
+  }
+
+  function hideControlsNow() {
+    clearControlsTimer();
+
+    if (!player.paused && !player.ended) {
+      stage.classList.add("controls-hidden");
+    }
   }
 
   function updateFullscreenButton() {
@@ -529,40 +548,45 @@ document.addEventListener("DOMContentLoaded", function () {
     togglePlayback();
   });
 
-  function handleSingleScreenTap() {
-    suppressControlReveal = true;
+  player.addEventListener("click", togglePlayback);
+
+  function handleSingleTap() {
+    suppressAutoReveal = true;
 
     togglePlayback().finally(function () {
       window.setTimeout(function () {
-        suppressControlReveal = false;
-      }, 80);
+        suppressAutoReveal = false;
+      }, 100);
     });
+  }
+
+  function handleDoubleTap() {
+    showControlsOnly();
   }
 
   function handleScreenPointerUp(event) {
     if (
       event.target.closest(".cinema-controls") ||
+      event.target.closest(".advanced-panel") ||
       event.target.closest(".center-play-button")
     ) {
       return;
     }
 
-    screenTapCount += 1;
+    tapCount += 1;
 
-    if (screenTapCount === 1) {
-      screenTapTimer = window.setTimeout(function () {
-        screenTapCount = 0;
-        handleSingleScreenTap();
-      }, 280);
-
+    if (tapCount === 1) {
+      tapTimer = window.setTimeout(function () {
+        tapCount = 0;
+        handleSingleTap();
+      }, 260);
       return;
     }
 
-    window.clearTimeout(screenTapTimer);
-    screenTapTimer = null;
-    screenTapCount = 0;
-
-    showPlayerControls();
+    window.clearTimeout(tapTimer);
+    tapTimer = null;
+    tapCount = 0;
+    handleDoubleTap();
   }
 
   screen.addEventListener("pointerup", handleScreenPointerUp);
@@ -570,8 +594,8 @@ document.addEventListener("DOMContentLoaded", function () {
   player.addEventListener("play", function () {
     updatePlayButtons();
 
-    if (suppressControlReveal) {
-      stage.classList.add("controls-hidden");
+    if (suppressAutoReveal) {
+      hideControlsNow();
       return;
     }
 
@@ -582,8 +606,8 @@ document.addEventListener("DOMContentLoaded", function () {
     updatePlayButtons();
     clearControlsTimer();
 
-    if (suppressControlReveal) {
-      stage.classList.add("controls-hidden");
+    if (suppressAutoReveal) {
+      hideControlsNow();
       return;
     }
 
@@ -646,6 +670,7 @@ document.addEventListener("DOMContentLoaded", function () {
     clearControlsTimer();
     stage.classList.remove("controls-hidden");
     localStorage.removeItem(player.dataset.resumeKey);
+    updatePlayButtons();
   });
 
   player.addEventListener("error", function () {
@@ -786,6 +811,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   stage.addEventListener("mouseenter", showPlayerControls);
 
+  stage.addEventListener(
+    "touchstart",
+    showPlayerControls,
+    { passive: true }
+  );
+
+  stage.addEventListener("pointerdown", showPlayerControls);
 
   stage.addEventListener("mouseleave", function () {
     if (!player.paused && !player.ended) {
@@ -828,16 +860,18 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!player.paused && !player.ended) {
           stage.classList.add("controls-hidden");
         }
-      }, 120);
+      }, 150);
     } else {
+      player.controls = false;
       stage.classList.remove("controls-hidden");
     }
   });
 
   window.addEventListener("beforeunload", function () {
     clearControlsTimer();
-    if (screenTapTimer !== null) {
-      window.clearTimeout(screenTapTimer);
+
+    if (tapTimer !== null) {
+      window.clearTimeout(tapTimer);
     }
 
     localStorage.setItem(
