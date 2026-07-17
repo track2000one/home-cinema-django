@@ -5,7 +5,7 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'series/series.css' %}">
-<<<<<<< HEAD
+ HEAD
 <section class="episode-page">
   <div class="episode-breadcrumbs"><a href="{% url 'series:library' %}">Series</a><span>›</span><a href="{% url 'series:detail' series.slug %}">{{ series.title }}</a><span>›</span><strong>{{ episode.code }}</strong></div>
   <div class="episode-layout">
@@ -31,7 +31,7 @@
         {% for item in season_episodes %}
         <a class="episode-list-item {% if item.pk == episode.pk %}active{% endif %}" href="{% url 'series:episode' series.slug item.pk %}">
           <span class="episode-list-number">{{ item.number }}</span><div><strong>{{ item.display_title }}</strong><small>{{ item.duration_text|default:item.code }}</small></div>
-=======
+
 
 <section class="episode-page">
   <div class="episode-breadcrumbs">
@@ -135,18 +135,18 @@
             <strong>{{ item.display_title }}</strong>
             <small>{{ item.duration_text|default:item.code }}</small>
           </div>
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
         </a>
         {% endfor %}
       </div>
     </aside>
   </div>
 </section>
-<<<<<<< HEAD
+ HEAD
 {% if player_source_type == "hls" %}
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.13/dist/hls.min.js"></script>
 <script>document.addEventListener("DOMContentLoaded",function(){const p=document.getElementById("episode-player"),s="{{ player_source_url|escapejs }}";if(!p||!s)return;if(p.canPlayType("application/vnd.apple.mpegurl")){p.src=s;return}if(window.Hls&&window.Hls.isSupported()){const h=new window.Hls();h.loadSource(s);h.attachMedia(p)}});</script>
-=======
+
 
 {% if player_source_type == "hls" %}
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.13/dist/hls.min.js"></script>
@@ -171,6 +171,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 </script>
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
 {% endif %}
 {% endblock %}

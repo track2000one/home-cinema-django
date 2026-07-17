@@ -2,10 +2,10 @@
 
 {% block object-tools-items %}
   {{ block.super }}
-<<<<<<< HEAD
+ HEAD
   {% if original %}
   <li><a href="{% url 'admin:series_series_import_episodes' original.pk %}" class="addlink">Bulk import episode links</a></li>
-=======
+
 
   {% if original %}
   <li>
@@ -16,6 +16,6 @@
       Bulk import episode links
     </a>
   </li>
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
   {% endif %}
 {% endblock %}

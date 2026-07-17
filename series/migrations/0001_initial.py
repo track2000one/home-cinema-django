@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Series",
             fields=[
-<<<<<<< HEAD
+ HEAD
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
                 ("title", models.CharField(max_length=220, verbose_name="Series title")),
                 ("slug", models.SlugField(blank=True, max_length=240, unique=True)),
@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ("backdrop", models.ImageField(blank=True, null=True, upload_to="series/backdrops/", verbose_name="Backdrop")),
                 ("featured", models.BooleanField(default=False, verbose_name="Featured")),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
-=======
+
                 (
                     "id",
                     models.BigAutoField(
@@ -102,26 +102,26 @@ class Migration(migrations.Migration):
                         auto_now_add=True,
                     ),
                 ),
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
             ],
             options={
                 "verbose_name": "Series",
                 "verbose_name_plural": "Series",
-<<<<<<< HEAD
+ HEAD
                 "ordering": ["-featured", "-created_at", "title"],
-=======
+
                 "ordering": [
                     "-featured",
                     "-created_at",
                     "title",
                 ],
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
             },
         ),
         migrations.CreateModel(
             name="Season",
             fields=[
-<<<<<<< HEAD
+ HEAD
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
                 ("number", models.PositiveIntegerField(verbose_name="Season number")),
                 ("title", models.CharField(blank=True, max_length=220, verbose_name="Season title")),
@@ -130,7 +130,7 @@ class Migration(migrations.Migration):
                 ("series", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="seasons", to="series.series")),
             ],
             options={"ordering": ["number"]},
-=======
+
                 (
                     "id",
                     models.BigAutoField(
@@ -182,12 +182,12 @@ class Migration(migrations.Migration):
             options={
                 "ordering": ["number"],
             },
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
         ),
         migrations.CreateModel(
             name="Episode",
             fields=[
-<<<<<<< HEAD
+ HEAD
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
                 ("number", models.PositiveIntegerField(verbose_name="Episode number")),
                 ("title", models.CharField(blank=True, max_length=220, verbose_name="Episode title")),
@@ -212,7 +212,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="episode",
             constraint=models.UniqueConstraint(fields=("season", "number"), name="unique_season_episode_number"),
-=======
+
                 (
                     "id",
                     models.BigAutoField(
@@ -352,6 +352,6 @@ class Migration(migrations.Migration):
                 fields=("season", "number"),
                 name="unique_season_episode_number",
             ),
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
         ),
     ]

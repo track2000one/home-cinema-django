@@ -15,11 +15,11 @@ class SeasonInline(admin.TabularInline):
 
 @admin.register(Series)
 class SeriesAdmin(admin.ModelAdmin):
-<<<<<<< HEAD
+ HEAD
     list_display = ("title", "year", "genre", "season_count", "episode_total", "featured")
     list_filter = ("featured", "genre", "year")
     search_fields = ("title", "description", "genre")
-=======
+
     list_display = (
         "title",
         "year",
@@ -33,13 +33,13 @@ class SeriesAdmin(admin.ModelAdmin):
     list_filter = ("featured", "genre", "year")
     search_fields = ("title", "description", "genre")
     prepopulated_fields = {"slug": ("title",)}
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
     readonly_fields = ("created_at",)
     inlines = [SeasonInline]
     change_form_template = "admin/series/series/change_form.html"
 
-<<<<<<< HEAD
-=======
+ HEAD
+
     fieldsets = (
         (
             "Series information",
@@ -71,7 +71,7 @@ class SeriesAdmin(admin.ModelAdmin):
         ),
     )
 
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
     @admin.display(description="Seasons")
     def season_count(self, obj):
         return obj.seasons.count()
@@ -81,7 +81,7 @@ class SeriesAdmin(admin.ModelAdmin):
         return obj.episode_count
 
     def get_urls(self):
-<<<<<<< HEAD
+ HEAD
         return [
             path(
                 "<int:series_id>/import-episodes/",
@@ -127,7 +127,7 @@ class SeriesAdmin(admin.ModelAdmin):
                     level=messages.SUCCESS,
                 )
                 return redirect(reverse("admin:series_series_change", args=[series.pk]))
-=======
+
         urls = super().get_urls()
 
         custom_urls = [
@@ -206,7 +206,7 @@ class SeriesAdmin(admin.ModelAdmin):
                     )
         else:
             form = BulkEpisodeImportForm()
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
 
         context = {
             **self.admin_site.each_context(request),
@@ -215,25 +215,25 @@ class SeriesAdmin(admin.ModelAdmin):
             "form": form,
             "opts": self.model._meta,
         }
-<<<<<<< HEAD
+ HEAD
         return render(request, "admin/series/series/import_episodes.html", context)
-=======
+
 
         return render(
             request,
             "admin/series/series/import_episodes.html",
             context,
         )
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
 
 
 @admin.register(Season)
 class SeasonAdmin(admin.ModelAdmin):
-<<<<<<< HEAD
+ HEAD
     list_display = ("series", "number", "title", "episode_count")
     list_filter = ("series",)
     search_fields = ("series__title", "title")
-=======
+
     list_display = (
         "series",
         "number",
@@ -244,7 +244,7 @@ class SeasonAdmin(admin.ModelAdmin):
     list_filter = ("series",)
     search_fields = ("series__title", "title")
     ordering = ("series__title", "number")
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
 
     @admin.display(description="Episodes")
     def episode_count(self, obj):
@@ -253,12 +253,12 @@ class SeasonAdmin(admin.ModelAdmin):
 
 @admin.register(Episode)
 class EpisodeAdmin(admin.ModelAdmin):
-<<<<<<< HEAD
+ HEAD
     list_display = ("series_title", "season_number", "number", "title", "video_source", "has_subtitle")
     list_filter = ("season__series", "season__number", "video_type")
     search_fields = ("season__series__title", "title", "description")
     readonly_fields = ("slug", "converted_subtitle", "created_at")
-=======
+
     list_display = (
         "series_title",
         "season_number",
@@ -330,7 +330,7 @@ class EpisodeAdmin(admin.ModelAdmin):
             },
         ),
     )
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
 
     @admin.display(description="Series")
     def series_title(self, obj):

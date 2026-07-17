@@ -13,18 +13,18 @@ from google.oauth2 import service_account
 from .models import Episode, Series
 
 
-<<<<<<< HEAD
+ HEAD
 DRIVE_READONLY_SCOPE = "https://www.googleapis.com/auth/drive.readonly"
-=======
+
 DRIVE_READONLY_SCOPE = (
     "https://www.googleapis.com/auth/drive.readonly"
 )
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
 
 
 @lru_cache(maxsize=1)
 def get_google_drive_session() -> AuthorizedSession:
-<<<<<<< HEAD
+ HEAD
     raw_json = getattr(settings, "GOOGLE_SERVICE_ACCOUNT_JSON", "")
     if not raw_json:
         raise RuntimeError("GOOGLE_SERVICE_ACCOUNT_JSON is not configured.")
@@ -36,7 +36,7 @@ def get_google_drive_session() -> AuthorizedSession:
         service_account_info,
         scopes=[DRIVE_READONLY_SCOPE],
     )
-=======
+
     raw_json = getattr(
         settings,
         "GOOGLE_SERVICE_ACCOUNT_JSON",
@@ -62,19 +62,19 @@ def get_google_drive_session() -> AuthorizedSession:
         )
     )
 
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
     return AuthorizedSession(credentials)
 
 
 def google_drive_iterator(upstream_response, chunk_size: int):
     try:
-<<<<<<< HEAD
+ HEAD
         for chunk in upstream_response.iter_content(chunk_size=chunk_size):
-=======
+
         for chunk in upstream_response.iter_content(
             chunk_size=chunk_size
         ):
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
             if chunk:
                 yield chunk
     finally:
@@ -82,12 +82,12 @@ def google_drive_iterator(upstream_response, chunk_size: int):
 
 
 def copy_stream_headers(source, target):
-<<<<<<< HEAD
+ HEAD
     for header_name in ("Content-Type", "Content-Length", "Content-Range", "Accept-Ranges", "ETag", "Last-Modified"):
         value = source.headers.get(header_name)
         if value:
             target[header_name] = value
-=======
+
     for header_name in (
         "Content-Type",
         "Content-Length",
@@ -101,7 +101,7 @@ def copy_stream_headers(source, target):
         if value:
             target[header_name] = value
 
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
     target["Accept-Ranges"] = "bytes"
     target["Cache-Control"] = "private, max-age=3600"
     target["X-Content-Type-Options"] = "nosniff"
@@ -111,7 +111,7 @@ def copy_stream_headers(source, target):
 def series_library(request):
     query = request.GET.get("q", "").strip()
     genre = request.GET.get("genre", "").strip()
-<<<<<<< HEAD
+ HEAD
     series_items = Series.objects.prefetch_related("seasons__episodes")
     if query:
         series_items = series_items.filter(title__icontains=query)
@@ -124,7 +124,7 @@ def series_library(request):
         "query": query,
         "selected_genre": genre,
     })
-=======
+
 
     series_items = Series.objects.prefetch_related(
         "seasons__episodes"
@@ -158,18 +158,18 @@ def series_library(request):
             "selected_genre": genre,
         },
     )
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
 
 
 @login_required
 def series_detail(request, slug):
-<<<<<<< HEAD
+ HEAD
     series = get_object_or_404(Series.objects.prefetch_related("seasons__episodes"), slug=slug)
     return render(request, "series/detail.html", {
         "series": series,
         "seasons": series.seasons.prefetch_related("episodes"),
     })
-=======
+
     series = get_object_or_404(
         Series.objects.prefetch_related(
             "seasons__episodes"
@@ -189,20 +189,20 @@ def series_detail(request, slug):
             "seasons": seasons,
         },
     )
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
 
 
 @login_required
 def episode_detail(request, series_slug, episode_pk):
     episode = get_object_or_404(
-<<<<<<< HEAD
+ HEAD
         Episode.objects.select_related("season", "season__series"),
         pk=episode_pk,
         season__series__slug=series_slug,
     )
     if episode.google_drive_file_id:
         source_url = reverse("series:drive_stream", args=[episode.pk])
-=======
+
         Episode.objects.select_related(
             "season",
             "season__series",
@@ -216,13 +216,13 @@ def episode_detail(request, series_slug, episode_pk):
             "series:drive_stream",
             args=[episode.pk],
         )
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
         source_type = Episode.VIDEO_TYPE_MP4
     else:
         source_url = episode.video_url
         source_type = episode.resolved_video_type
 
-<<<<<<< HEAD
+ HEAD
     season_episodes = episode.season.episodes.all().order_by("number")
     previous_episode = season_episodes.filter(number__lt=episode.number).order_by("-number").first()
     next_episode = season_episodes.filter(number__gt=episode.number).order_by("number").first()
@@ -237,7 +237,7 @@ def episode_detail(request, series_slug, episode_pk):
         "player_source_url": source_url,
         "player_source_type": source_type,
     })
-=======
+
     season_episodes = (
         episode.season.episodes
         .all()
@@ -272,14 +272,14 @@ def episode_detail(request, series_slug, episode_pk):
             "player_source_type": source_type,
         },
     )
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
 
 
 @login_required
 def stream_google_drive_episode(request, episode_pk):
     episode = get_object_or_404(Episode, pk=episode_pk)
     file_id = episode.google_drive_file_id
-<<<<<<< HEAD
+ HEAD
     if not file_id:
         raise Http404("This episode has no valid Google Drive file ID.")
 
@@ -300,7 +300,7 @@ def stream_google_drive_episode(request, episode_pk):
             ),
         )
     except (RuntimeError, requests.RequestException) as error:
-=======
+
 
     if not file_id:
         raise Http404(
@@ -358,7 +358,7 @@ def stream_google_drive_episode(request, episode_pk):
         RuntimeError,
         requests.RequestException,
     ) as error:
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
         return HttpResponse(
             f"Google Drive streaming is unavailable: {error}",
             status=503,
@@ -367,14 +367,14 @@ def stream_google_drive_episode(request, episode_pk):
 
     if upstream.status_code == 404:
         upstream.close()
-<<<<<<< HEAD
+ HEAD
         raise Http404("The Google Drive episode file was not found or was not shared with the service account.")
     if upstream.status_code not in (200, 206):
         status_code = upstream.status_code
         upstream.close()
         return HttpResponse(
             f"Google Drive refused the episode request. Upstream status: {status_code}.",
-=======
+
         raise Http404(
             "The Google Drive episode file was not found "
             "or was not shared with the service account."
@@ -389,12 +389,12 @@ def stream_google_drive_episode(request, episode_pk):
                 "Google Drive refused the episode request. "
                 f"Upstream status: {status_code}."
             ),
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
             status=502,
             content_type="text/plain; charset=utf-8",
         )
 
-<<<<<<< HEAD
+ HEAD
     response = StreamingHttpResponse(
         google_drive_iterator(
             upstream,
@@ -405,7 +405,7 @@ def stream_google_drive_episode(request, episode_pk):
     )
     copy_stream_headers(upstream, response)
     response["Content-Disposition"] = f'inline; filename="episode-{episode.pk}.mp4"'
-=======
+
     content_type = (
         upstream.headers.get("Content-Type")
         or "video/mp4"
@@ -426,5 +426,5 @@ def stream_google_drive_episode(request, episode_pk):
         f'inline; filename="episode-{episode.pk}.mp4"'
     )
 
->>>>>>> 2347441 (Improve Safari player and double tap controls)
+ 2347441 (Improve Safari player and double tap controls)
     return response
