@@ -5,16 +5,16 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'series/series.css' %}">
- HEAD
+<<<<<<< HEAD
+=======
 
-
- 2347441 (Improve Safari player and double tap controls)
+>>>>>>> 2347441 (Improve Safari player and double tap controls)
 <section class="series-page">
   <div class="series-hero">
     <div>
       <span class="series-kicker">Home Cinema</span>
       <h1>Series Library</h1>
- HEAD
+<<<<<<< HEAD
       <p>Browse complete series, seasons, and episodes from one organized streaming library.</p>
     </div>
   </div>
@@ -27,7 +27,7 @@
       <option value="{{ genre }}" {% if selected_genre == genre %}selected{% endif %}>{{ genre }}</option>
       {% endfor %}
     </select>
-
+=======
       <p>
         Browse complete series, seasons, and episodes from one organized
         streaming library.
@@ -59,36 +59,36 @@
       {% endfor %}
     </select>
 
- 2347441 (Improve Safari player and double tap controls)
+>>>>>>> 2347441 (Improve Safari player and double tap controls)
     <button type="submit">Search</button>
   </form>
 
   <div class="series-grid">
     {% for item in series_items %}
- HEAD
+<<<<<<< HEAD
     <a class="series-card" href="{% url 'series:detail' item.slug %}">
-
+=======
     <a
       class="series-card"
       href="{% url 'series:detail' item.slug %}"
     >
- 2347441 (Improve Safari player and double tap controls)
+>>>>>>> 2347441 (Improve Safari player and double tap controls)
       <div class="series-poster">
         {% if item.poster %}
         <img src="{{ item.poster.url }}" alt="{{ item.title }}">
         {% else %}
         <div class="series-poster-empty">SERIES</div>
         {% endif %}
- HEAD
+<<<<<<< HEAD
+=======
 
-
- 2347441 (Improve Safari player and double tap controls)
+>>>>>>> 2347441 (Improve Safari player and double tap controls)
         <div class="series-card-overlay">
           <span>{{ item.seasons.count }} Seasons</span>
           <span>{{ item.episode_count }} Episodes</span>
         </div>
       </div>
- HEAD
+<<<<<<< HEAD
       <div class="series-card-body">
         <h2>{{ item.title }}</h2>
         <div class="series-meta"><span>{{ item.year|default:"—" }}</span><span>{{ item.genre|default:"Series" }}</span></div>
@@ -96,7 +96,7 @@
     </a>
     {% empty %}
     <div class="series-empty">No series found.</div>
-
+=======
 
       <div class="series-card-body">
         <h2>{{ item.title }}</h2>
@@ -110,7 +110,7 @@
     <div class="series-empty">
       No series found.
     </div>
- 2347441 (Improve Safari player and double tap controls)
+>>>>>>> 2347441 (Improve Safari player and double tap controls)
     {% endfor %}
   </div>
 </section>

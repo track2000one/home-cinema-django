@@ -5,7 +5,7 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'series/series.css' %}">
- HEAD
+<<<<<<< HEAD
 <section class="series-detail-page">
   <a class="series-back" href="{% url 'series:library' %}">← Back to series</a>
 
@@ -13,7 +13,7 @@
     <div class="series-detail-copy">
       <span class="series-kicker">{{ series.genre|default:"Series" }}</span>
       <h1>{{ series.title }}</h1>
-
+=======
 
 <section class="series-detail-page">
   <a class="series-back" href="{% url 'series:library' %}">
@@ -32,17 +32,17 @@
       <span class="series-kicker">{{ series.genre|default:"Series" }}</span>
       <h1>{{ series.title }}</h1>
 
- 2347441 (Improve Safari player and double tap controls)
+>>>>>>> 2347441 (Improve Safari player and double tap controls)
       <div class="series-detail-meta">
         <span>{{ series.year|default:"—" }}</span>
         <span>{{ series.seasons.count }} Seasons</span>
         <span>{{ series.episode_count }} Episodes</span>
       </div>
- HEAD
+<<<<<<< HEAD
       <p>{{ series.description|default:"No description available." }}</p>
     </div>
     {% if series.poster %}<img class="series-detail-poster" src="{{ series.poster.url }}" alt="{{ series.title }}">{% endif %}
-
+=======
 
       <p>{{ series.description|default:"No description available." }}</p>
     </div>
@@ -54,14 +54,14 @@
       alt="{{ series.title }}"
     >
     {% endif %}
- 2347441 (Improve Safari player and double tap controls)
+>>>>>>> 2347441 (Improve Safari player and double tap controls)
   </div>
 
   <div class="season-stack">
     {% for season in seasons %}
     <section class="season-section">
       <div class="season-heading">
- HEAD
+<<<<<<< HEAD
         <div><span class="season-number">Season {{ season.number }}</span><h2>{{ season.display_title }}</h2></div>
         <span class="season-count">{{ season.episodes.count }} Episodes</span>
       </div>
@@ -81,7 +81,7 @@
       </div>
     </section>
     {% empty %}<div class="series-empty">No seasons have been added yet.</div>{% endfor %}
-
+=======
         <div>
           <span class="season-number">Season {{ season.number }}</span>
           <h2>{{ season.display_title }}</h2>
@@ -133,7 +133,7 @@
       No seasons have been added yet.
     </div>
     {% endfor %}
- 2347441 (Improve Safari player and double tap controls)
+>>>>>>> 2347441 (Improve Safari player and double tap controls)
   </div>
 </section>
 {% endblock %}
