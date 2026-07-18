@@ -357,6 +357,22 @@
     background: rgba(255,255,255,.06);
   }
 
+  .aura-quality {
+    width: auto;
+    min-width: 92px;
+    padding: 8px 10px;
+    border: 1px solid rgba(82,218,255,.28);
+    border-radius: 10px;
+    color: #8de8ff;
+    background: rgba(51,214,255,.06);
+    font-weight: 700;
+  }
+
+  .aura-quality:disabled {
+    opacity: .62;
+    cursor: not-allowed;
+  }
+
   .aura-settings-panel {
     margin-top: 16px;
     padding-top: 16px;
@@ -691,7 +707,9 @@
               <option value="1.5">1.5×</option>
               <option value="2">2×</option>
             </select>
-            <span class="aura-badge">Original HD</span>
+            <select id="quality-select" class="aura-quality" aria-label="جودة الفيديو">
+              <option value="-1">تلقائي</option>
+            </select>
             <button class="aura-icon-btn" id="subtitle-toggle" type="button" title="الترجمة">CC</button>
             <button class="aura-icon-btn" id="pip-button" type="button" title="صورة داخل صورة">▣</button>
             <button class="aura-icon-btn" id="fullscreen-button" type="button" title="ملء الشاشة">⛶</button>
@@ -770,6 +788,7 @@ document.addEventListener("DOMContentLoaded", function () {
     forward: document.getElementById("forward-button"),
     volume: document.getElementById("volume-slider"),
     speed: document.getElementById("speed-select"),
+    quality: document.getElementById("quality-select"),
     pip: document.getElementById("pip-button"),
     fullscreen: document.getElementById("fullscreen-button"),
     progress: document.getElementById("progress-slider"),
@@ -855,11 +874,79 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+
+  function uniqueQualityLevels(levels) {
+    const seen = new Set();
+
+    return levels
+      .map((level, index) => ({
+        index,
+        height: Number(level.height || 0),
+        bitrate: Number(level.bitrate || 0)
+      }))
+      .filter(item => {
+        const key = item.height > 0 ? String(item.height) : "b" + item.bitrate;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .sort((a, b) => b.height - a.height || b.bitrate - a.bitrate);
+  }
+
+  function populateQualityOptions(levels) {
+    controls.quality.innerHTML = '<option value="-1">تلقائي</option>';
+
+    const qualities = uniqueQualityLevels(levels);
+
+    qualities.forEach(item => {
+      const option = document.createElement("option");
+      option.value = String(item.index);
+      option.textContent = item.height
+        ? item.height + "p"
+        : Math.round(item.bitrate / 1000) + " kbps";
+      controls.quality.appendChild(option);
+    });
+
+    controls.quality.disabled = qualities.length === 0;
+    controls.quality.title = qualities.length
+      ? "اختر الجودة أو اتركها تلقائية"
+      : "المصدر الحالي لا يحتوي جودات متعددة";
+  }
+
+  function setQuality(levelIndex) {
+    if (!hls) return;
+
+    const selected = Number(levelIndex);
+    hls.currentLevel = selected;
+    hls.nextLevel = selected;
+    hls.loadLevel = selected;
+
+    if (selected === -1) {
+      showMessage("تم تفعيل الجودة التلقائية.");
+      return;
+    }
+
+    const level = hls.levels[selected];
+    const label = level && level.height
+      ? level.height + "p"
+      : "الجودة المحددة";
+
+    showMessage("تم اختيار جودة " + label + ".");
+  }
+
   function initializeSource() {
-    if (sourceType !== "hls") return;
+    if (sourceType !== "hls") {
+      controls.quality.innerHTML = '<option value="-1">الأصلية</option>';
+      controls.quality.disabled = true;
+      controls.quality.title = "ملف MP4 واحد يحتوي جودة واحدة";
+      return;
+    }
 
     if (player.canPlayType("application/vnd.apple.mpegurl")) {
       player.src = remoteSource;
+      controls.quality.innerHTML = '<option value="-1">تلقائي</option>';
+      controls.quality.disabled = true;
+      controls.quality.title = "Safari يختار جودة HLS تلقائيًا";
       return;
     }
 
@@ -867,6 +954,19 @@ document.addEventListener("DOMContentLoaded", function () {
       hls = new window.Hls({ enableWorker: true });
       hls.loadSource(remoteSource);
       hls.attachMedia(player);
+
+      hls.on(window.Hls.Events.MANIFEST_PARSED, function () {
+        populateQualityOptions(hls.levels);
+      });
+
+      hls.on(window.Hls.Events.LEVEL_SWITCHED, function (_, data) {
+        if (controls.quality.value === "-1") return;
+        const activeLevel = hls.levels[data.level];
+        if (activeLevel && activeLevel.height) {
+          controls.quality.title = "الجودة الحالية: " + activeLevel.height + "p";
+        }
+      });
+
       hls.on(window.Hls.Events.ERROR, function (_, data) {
         if (!data.fatal) return;
         if (data.type === window.Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
@@ -962,6 +1062,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   controls.speed.addEventListener("change", () => {
     player.playbackRate = Number(controls.speed.value);
+  });
+
+  controls.quality.addEventListener("change", function () {
+    setQuality(controls.quality.value);
   });
 
   controls.progress.addEventListener("input", () => {
