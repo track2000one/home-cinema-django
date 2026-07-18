@@ -4,23 +4,623 @@
 {% block title %}{{ movie.title }}{% endblock %}
 
 {% block content %}
-<!-- PLAYER_VERSION: PRO_TOUCH_PLAYER_V5 -->
-<section class="detail-page cinema-detail">
+<style>
+  :root {
+    --aura-bg: #050711;
+    --aura-panel: rgba(10, 14, 27, 0.92);
+    --aura-line: rgba(145, 106, 255, 0.22);
+    --aura-purple: #a95cff;
+    --aura-pink: #d75cff;
+    --aura-cyan: #33d6ff;
+    --aura-text: #f7f7fb;
+    --aura-muted: #9ba3b7;
+  }
 
-  <a class="back-link" href="{% url 'movies:library' %}">
-    ← Back to library
-  </a>
+  .aura-page {
+    width: min(1600px, calc(100% - 28px));
+    margin: 26px auto 70px;
+  }
 
-  <div class="cinema-layout" id="cinema-layout">
+  .aura-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    color: var(--aura-muted);
+    font-size: 14px;
+  }
 
-    <main class="cinema-stage" id="cinema-stage">
+  .aura-shell {
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--aura-line);
+    border-radius: 26px;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(167, 76, 255, .12), transparent 30%),
+      radial-gradient(circle at 90% 100%, rgba(51, 214, 255, .10), transparent 28%),
+      var(--aura-bg);
+    box-shadow:
+      0 30px 90px rgba(0, 0, 0, .55),
+      inset 0 1px 0 rgba(255,255,255,.05);
+  }
 
-      <div class="cinema-screen" id="cinema-screen">
+  .aura-topbar {
+    min-height: 76px;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    background: rgba(7, 10, 20, .86);
+    backdrop-filter: blur(18px);
+  }
 
+  .aura-brand {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .aura-logo {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--aura-purple), var(--aura-cyan));
+    box-shadow: 0 0 28px rgba(124, 92, 255, .38);
+    font-size: 18px;
+  }
+
+  .aura-title-line {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .aura-name {
+    font-size: clamp(17px, 2vw, 24px);
+    font-weight: 900;
+    letter-spacing: .05em;
+    background: linear-gradient(90deg, var(--aura-pink), #fff, var(--aura-cyan));
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .aura-divider {
+    width: 1px;
+    height: 28px;
+    background: rgba(255,255,255,.14);
+  }
+
+  .aura-movie-title {
+    max-width: 480px;
+    overflow: hidden;
+    color: var(--aura-muted);
+    font-size: 15px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .aura-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .aura-action,
+  .aura-icon-btn {
+    border: 0;
+    color: var(--aura-muted);
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .aura-action {
+    padding: 9px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border-radius: 11px;
+    font-size: 13px;
+  }
+
+  .aura-action:hover,
+  .aura-icon-btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,.06);
+  }
+
+  .aura-stage {
+    position: relative;
+    background: #000;
+  }
+
+  .aura-video-wrap {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    overflow: hidden;
+  }
+
+  .aura-video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+    background: #000;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .aura-video-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(to bottom, rgba(0,0,0,.16), transparent 24%),
+      linear-gradient(to top, rgba(2,4,12,.70), transparent 32%);
+  }
+
+  .aura-center-play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 82px;
+    height: 82px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: 50%;
+    color: #fff;
+    background:
+      radial-gradient(circle at 30% 25%, rgba(255,255,255,.18), transparent 40%),
+      linear-gradient(145deg, rgba(174,88,255,.95), rgba(74,116,255,.92));
+    box-shadow:
+      0 0 0 10px rgba(146,85,255,.10),
+      0 16px 40px rgba(0,0,0,.38),
+      0 0 36px rgba(165,88,255,.28);
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    z-index: 5;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+
+  .aura-stage.is-playing .aura-center-play {
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(.88);
+  }
+
+  .aura-message {
+    position: absolute;
+    left: 50%;
+    bottom: 24px;
+    z-index: 10;
+    max-width: min(90%, 620px);
+    padding: 10px 14px;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 12px;
+    color: #fff;
+    background: rgba(0,0,0,.80);
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 13px;
+  }
+
+  .aura-controls {
+    position: relative;
+    padding: 18px 22px 20px;
+    background:
+      linear-gradient(180deg, rgba(9,12,24,.90), rgba(5,7,16,.98));
+    border-top: 1px solid rgba(255,255,255,.06);
+    transition: opacity .22s ease, transform .22s ease;
+  }
+
+  .aura-stage.controls-hidden .aura-controls {
+    opacity: 0;
+    transform: translateY(14px);
+    pointer-events: none;
+  }
+
+  .aura-progress-shell {
+    position: relative;
+    margin-bottom: 18px;
+  }
+
+  .aura-progress {
+    width: 100%;
+    height: 6px;
+    padding: 0;
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--aura-purple), var(--aura-pink), rgba(255,255,255,.18));
+    cursor: pointer;
+  }
+
+  .aura-progress::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    background: #c56cff;
+    box-shadow: 0 0 22px rgba(197,108,255,.75);
+  }
+
+  .aura-progress::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    background: #c56cff;
+  }
+
+  .aura-chapters {
+    position: absolute;
+    inset: -18px 0 auto;
+    height: 18px;
+    pointer-events: none;
+  }
+
+  .aura-chapter-dot {
+    position: absolute;
+    bottom: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--aura-cyan);
+    box-shadow: 0 0 12px rgba(51,214,255,.65);
+  }
+
+  .aura-chapter-dot:nth-child(1) { left: 22%; }
+  .aura-chapter-dot:nth-child(2) { left: 47%; background: var(--aura-purple); }
+  .aura-chapter-dot:nth-child(3) { left: 72%; }
+
+  .aura-bottom {
+    display: grid;
+    grid-template-columns: minmax(160px, .7fr) auto minmax(260px, 1fr);
+    align-items: center;
+    gap: 18px;
+  }
+
+  .aura-time {
+    color: var(--aura-text);
+    font-variant-numeric: tabular-nums;
+    font-size: 16px;
+  }
+
+  .aura-time span:last-child {
+    color: var(--aura-muted);
+  }
+
+  .aura-main-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .aura-icon-btn {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 17px;
+  }
+
+  .aura-play-btn {
+    width: 66px;
+    height: 66px;
+    border: 2px solid rgba(195,103,255,.82);
+    box-shadow: 0 0 24px rgba(157,94,255,.26);
+    color: #fff;
+    background: rgba(18,21,38,.94);
+    font-size: 24px;
+  }
+
+  .aura-right-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+    min-width: 0;
+  }
+
+  .aura-volume {
+    width: min(160px, 26vw);
+    accent-color: var(--aura-cyan);
+  }
+
+  .aura-badge {
+    padding: 7px 10px;
+    border: 1px solid rgba(82,218,255,.28);
+    border-radius: 9px;
+    color: #8de8ff;
+    background: rgba(51,214,255,.06);
+    font-size: 12px;
+  }
+
+  .aura-speed {
+    width: auto;
+    min-width: 74px;
+    padding: 8px 10px;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 10px;
+    color: #fff;
+    background: rgba(255,255,255,.06);
+  }
+
+  .aura-settings-panel {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,.07);
+  }
+
+  .aura-settings-panel summary {
+    color: #fff;
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  .aura-settings-grid {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .aura-settings-grid label {
+    display: grid;
+    gap: 7px;
+    color: var(--aura-muted);
+    font-size: 12px;
+  }
+
+  .aura-settings-grid input {
+    width: 100%;
+  }
+
+  .aura-tools {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .aura-tool-btn,
+  .aura-upload {
+    min-height: 40px;
+    padding: 9px 13px;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 11px;
+    color: #fff;
+    background: rgba(255,255,255,.06);
+    font: inherit;
+    font-size: 12px;
+  }
+
+  .aura-upload {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .aura-upload input {
+    max-width: 220px;
+  }
+
+  .aura-info {
+    margin-top: 16px;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 22px;
+    border: 1px solid rgba(109, 126, 255, .16);
+    border-radius: 22px;
+    background:
+      radial-gradient(circle at 0% 50%, rgba(161,71,255,.10), transparent 30%),
+      radial-gradient(circle at 100% 50%, rgba(47,201,255,.08), transparent 30%),
+      rgba(8,11,22,.88);
+  }
+
+  .aura-info h1 {
+    margin: 0 0 10px;
+    color: #fff;
+    font-size: clamp(24px, 3vw, 42px);
+  }
+
+  .aura-info p {
+    margin: 0;
+    color: var(--aura-muted);
+    line-height: 1.9;
+  }
+
+  .aura-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .aura-meta span {
+    padding: 7px 10px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 9px;
+    color: #d9def0;
+    background: rgba(255,255,255,.04);
+    font-size: 12px;
+  }
+
+  .aura-poster-mini {
+    width: 120px;
+    aspect-ratio: 2/3;
+    overflow: hidden;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: #111;
+  }
+
+  .aura-poster-mini img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .aura-stage:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    background: #000;
+  }
+
+  .aura-stage:fullscreen .aura-video-wrap {
+    height: 100vh;
+    aspect-ratio: auto;
+  }
+
+  .aura-stage:fullscreen .aura-controls {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding:
+      48px
+      max(18px, env(safe-area-inset-right))
+      max(18px, calc(18px + env(safe-area-inset-bottom)))
+      max(18px, env(safe-area-inset-left));
+    background: linear-gradient(to top, rgba(0,0,0,.94), rgba(0,0,0,.58), transparent);
+    border-top: 0;
+  }
+
+  @media (max-width: 980px) {
+    .aura-action span { display: none; }
+    .aura-bottom {
+      grid-template-columns: 1fr;
+    }
+    .aura-time,
+    .aura-right-controls {
+      justify-self: center;
+    }
+    .aura-settings-grid {
+      grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+  }
+
+  @media (max-width: 650px) {
+    .aura-page {
+      width: min(100%, calc(100% - 14px));
+      margin-top: 12px;
+    }
+
+    .aura-shell {
+      border-radius: 18px;
+    }
+
+    .aura-topbar {
+      min-height: 64px;
+      padding: 10px 12px;
+    }
+
+    .aura-logo {
+      width: 36px;
+      height: 36px;
+    }
+
+    .aura-name {
+      font-size: 15px;
+    }
+
+    .aura-divider,
+    .aura-movie-title {
+      display: none;
+    }
+
+    .aura-actions {
+      gap: 2px;
+    }
+
+    .aura-action {
+      padding: 8px;
+    }
+
+    .aura-controls {
+      padding: 14px 12px 16px;
+    }
+
+    .aura-main-buttons {
+      gap: 4px;
+    }
+
+    .aura-icon-btn {
+      width: 36px;
+      height: 36px;
+      font-size: 14px;
+    }
+
+    .aura-play-btn {
+      width: 56px;
+      height: 56px;
+      font-size: 21px;
+    }
+
+    .aura-right-controls {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .aura-volume {
+      width: 120px;
+    }
+
+    .aura-settings-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .aura-info {
+      grid-template-columns: 1fr;
+      padding: 18px;
+    }
+
+    .aura-poster-mini {
+      display: none;
+    }
+  }
+</style>
+
+<section class="aura-page">
+  <a class="aura-back" href="{% url 'movies:library' %}">← العودة إلى الأفلام</a>
+
+  <article class="aura-shell">
+    <header class="aura-topbar">
+      <div class="aura-brand">
+        <div class="aura-logo">▶</div>
+        <div class="aura-title-line">
+          <strong class="aura-name">AURA CINEMA</strong>
+          <span class="aura-divider"></span>
+          <span class="aura-movie-title">{{ movie.title }}</span>
+        </div>
+      </div>
+
+      <div class="aura-actions">
+        <button class="aura-action" type="button" id="settings-jump">⚙ <span>الإعدادات</span></button>
+        <button class="aura-action" type="button" id="subtitle-jump">CC <span>الترجمة</span></button>
+        <button class="aura-action" type="button" id="share-button">⇧ <span>مشاركة</span></button>
+      </div>
+    </header>
+
+    <main class="aura-stage" id="aura-stage">
+      <div class="aura-video-wrap" id="aura-video-wrap">
         {% if movie.video_path or player_source_url %}
         <video
           id="movie-player"
-          class="movie-player"
+          class="aura-video"
           preload="metadata"
           playsinline
           webkit-playsinline
@@ -30,10 +630,7 @@
           data-resume-key="home-cinema-{{ movie.pk }}"
         >
           {% if player_source_type == "mp4" %}
-          <source
-            src="{{ player_source_url }}"
-            type="video/mp4"
-          >
+          <source src="{{ player_source_url }}" type="video/mp4">
           {% endif %}
 
           {% if movie.converted_subtitle %}
@@ -45,198 +642,142 @@
             default
           >
           {% endif %}
-
-          Your browser does not support HTML5 video.
         </video>
 
-        <button
-          class="center-play-button"
-          id="center-play-button"
-          type="button"
-          aria-label="Play or pause"
-        >
+        <div class="aura-video-overlay"></div>
+
+        <button id="center-play" class="aura-center-play" type="button" aria-label="تشغيل أو إيقاف">
           ▶
         </button>
 
-        <div class="player-message" id="player-message" hidden></div>
+        <div id="player-message" class="aura-message" hidden></div>
         {% else %}
-        <div class="video-error">
-          No video source has been configured.
-        </div>
+        <div class="video-error">لم تتم إضافة مصدر فيديو لهذا الفيلم.</div>
         {% endif %}
-
-      </div>
-
-      <div class="player-hint-bar">
-        <span>Tap once: Play / Pause</span>
-        <span>Double tap: Show controls</span>
       </div>
 
       {% if movie.video_path or player_source_url %}
-      <section class="cinema-controls" id="cinema-controls" aria-label="Player controls">
-
-        <div class="control-row main-control-row">
-          <button type="button" class="cinema-button primary" id="play-button">
-            Play
-          </button>
-
-          <button type="button" class="cinema-button" id="backward-button">
-            −10s
-          </button>
-
-          <button type="button" class="cinema-button" id="forward-button">
-            +10s
-          </button>
-
-          <label class="volume-control">
-            <span>Volume</span>
-            <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1">
-          </label>
-
-          <select id="speed-select" class="cinema-select" aria-label="Playback speed">
-            <option value="0.5">0.5×</option>
-            <option value="0.75">0.75×</option>
-            <option value="1" selected>1×</option>
-            <option value="1.25">1.25×</option>
-            <option value="1.5">1.5×</option>
-            <option value="2">2×</option>
-          </select>
-
-          <button type="button" class="cinema-button" id="pip-button">
-            Picture in Picture
-          </button>
-
-          <button type="button" class="cinema-button" id="theater-button">
-            Theater
-          </button>
-
-          <button type="button" class="cinema-button" id="fullscreen-button">
-            Fullscreen
-          </button>
+      <section class="aura-controls" id="aura-controls">
+        <div class="aura-progress-shell">
+          <div class="aura-chapters" aria-hidden="true">
+            <i class="aura-chapter-dot"></i>
+            <i class="aura-chapter-dot"></i>
+            <i class="aura-chapter-dot"></i>
+          </div>
+          <input id="progress-slider" class="aura-progress" type="range" min="0" max="100" step="0.01" value="0">
         </div>
 
-        <div class="progress-row">
-          <span id="current-time">00:00</span>
-          <input
-            id="progress-slider"
-            class="progress-slider"
-            type="range"
-            min="0"
-            max="100"
-            step="0.01"
-            value="0"
-            aria-label="Video progress"
-          >
-          <span id="duration-time">00:00</span>
+        <div class="aura-bottom">
+          <div class="aura-time">
+            <span id="current-time">00:00</span>
+            <span> / </span>
+            <span id="duration-time">00:00</span>
+          </div>
+
+          <div class="aura-main-buttons">
+            <button class="aura-icon-btn" id="backward-button" type="button" title="رجوع 10 ثوانٍ">↶10</button>
+            <button class="aura-icon-btn aura-play-btn" id="play-button" type="button">▶</button>
+            <button class="aura-icon-btn" id="forward-button" type="button" title="تقديم 10 ثوانٍ">10↷</button>
+          </div>
+
+          <div class="aura-right-controls">
+            <span>🔊</span>
+            <input id="volume-slider" class="aura-volume" type="range" min="0" max="1" step="0.01" value="1">
+            <select id="speed-select" class="aura-speed" aria-label="سرعة التشغيل">
+              <option value="0.5">0.5×</option>
+              <option value="0.75">0.75×</option>
+              <option value="1" selected>1×</option>
+              <option value="1.25">1.25×</option>
+              <option value="1.5">1.5×</option>
+              <option value="2">2×</option>
+            </select>
+            <span class="aura-badge">Original HD</span>
+            <button class="aura-icon-btn" id="subtitle-toggle" type="button" title="الترجمة">CC</button>
+            <button class="aura-icon-btn" id="pip-button" type="button" title="صورة داخل صورة">▣</button>
+            <button class="aura-icon-btn" id="fullscreen-button" type="button" title="ملء الشاشة">⛶</button>
+          </div>
         </div>
 
-        <details class="advanced-panel">
-          <summary>Picture and subtitle settings</summary>
+        <details class="aura-settings-panel" id="advanced-panel">
+          <summary>إعدادات الصورة والترجمة</summary>
 
-          <div class="settings-grid">
-            <label>
-              <span>Brightness <output id="brightness-output">100%</output></span>
+          <div class="aura-settings-grid">
+            <label>الإضاءة <output id="brightness-output">100%</output>
               <input id="brightness-slider" type="range" min="50" max="180" value="100">
             </label>
-
-            <label>
-              <span>Contrast <output id="contrast-output">100%</output></span>
+            <label>التباين <output id="contrast-output">100%</output>
               <input id="contrast-slider" type="range" min="50" max="180" value="100">
             </label>
-
-            <label>
-              <span>Color saturation <output id="saturation-output">100%</output></span>
+            <label>تشبع الألوان <output id="saturation-output">100%</output>
               <input id="saturation-slider" type="range" min="0" max="200" value="100">
             </label>
-
-            <label>
-              <span>Color tone <output id="hue-output">0°</output></span>
+            <label>درجة اللون <output id="hue-output">0°</output>
               <input id="hue-slider" type="range" min="-90" max="90" value="0">
             </label>
           </div>
 
-          <div class="subtitle-tools">
-            <button type="button" class="cinema-button" id="subtitle-toggle">
-              Subtitles on/off
-            </button>
-
-            <label class="subtitle-upload">
-              <span>Load SRT or VTT from this device</span>
-              <input
-                id="subtitle-file"
-                type="file"
-                accept=".srt,.vtt,text/vtt,application/x-subrip"
-              >
+          <div class="aura-tools">
+            <label class="aura-upload">
+              تحميل ترجمة SRT أو VTT
+              <input id="subtitle-file" type="file" accept=".srt,.vtt,text/vtt,application/x-subrip">
             </label>
-
-            <button type="button" class="cinema-button" id="reset-picture-button">
-              Reset picture
-            </button>
+            <button class="aura-tool-btn" id="reset-picture-button" type="button">إعادة ضبط الصورة</button>
           </div>
         </details>
-
       </section>
       {% endif %}
-
     </main>
+  </article>
 
-    <aside class="movie-info cinema-info">
-      <span class="kicker">{{ movie.genre|default:"Movie" }}</span>
+  <section class="aura-info">
+    <div>
+      <span class="kicker">{{ movie.genre|default:"فيلم" }}</span>
       <h1>{{ movie.title }}</h1>
-      <div class="year">{{ movie.year|default:"Year not specified" }}</div>
-      <p>{{ movie.description|default:"No description available." }}</p>
+      <p>{{ movie.description|default:"لا يوجد وصف متاح لهذا الفيلم." }}</p>
 
-      <div class="source-status local-source">
-        {{ movie.source_label }}
+      <div class="aura-meta">
+        <span>{{ movie.year|default:"السنة غير محددة" }}</span>
+        <span>{{ movie.source_label }}</span>
+        {% if movie.converted_subtitle %}<span>ترجمة عربية متاحة</span>{% endif %}
       </div>
+    </div>
 
-      {% if movie.converted_subtitle %}
-      <div class="subtitle-status">Arabic subtitle available</div>
-      {% else %}
-      <div class="subtitle-status subtitle-unavailable">
-        You can load an SRT/VTT subtitle while watching
-      </div>
-      {% endif %}
-
-      {% if movie.google_drive_url %}
-      <p class="source-note">
-        The movie is stored in Google Drive and streamed securely through
-        the site player using Google Drive API. The Google Drive interface
-        and external-open button are not displayed.
-      </p>
-      {% endif %}
-    </aside>
-
-  </div>
+    {% if movie.poster %}
+    <div class="aura-poster-mini">
+      <img src="{{ movie.poster.url }}" alt="{{ movie.title }}">
+    </div>
+    {% endif %}
+  </section>
 </section>
 
 {% if movie.video_path or player_source_url %}
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.13/dist/hls.min.js"></script>
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const player = document.getElementById("movie-player");
-  const screen = document.getElementById("cinema-screen");
-  const stage = document.getElementById("cinema-stage");
-  const layout = document.getElementById("cinema-layout");
+  const stage = document.getElementById("aura-stage");
+  const videoWrap = document.getElementById("aura-video-wrap");
   const message = document.getElementById("player-message");
   const sourceType = player.dataset.sourceType;
   const remoteSource = "{{ player_source_url|escapejs }}";
-  player.controls = false;
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
   const controls = {
-    centerPlay: document.getElementById("center-play-button"),
+    centerPlay: document.getElementById("center-play"),
     play: document.getElementById("play-button"),
     backward: document.getElementById("backward-button"),
     forward: document.getElementById("forward-button"),
     volume: document.getElementById("volume-slider"),
     speed: document.getElementById("speed-select"),
     pip: document.getElementById("pip-button"),
-    theater: document.getElementById("theater-button"),
     fullscreen: document.getElementById("fullscreen-button"),
     progress: document.getElementById("progress-slider"),
-    currentTime: document.getElementById("current-time"),
+    current: document.getElementById("current-time"),
     duration: document.getElementById("duration-time"),
+    subtitleToggle: document.getElementById("subtitle-toggle"),
+    subtitleFile: document.getElementById("subtitle-file"),
+    resetPicture: document.getElementById("reset-picture-button"),
     brightness: document.getElementById("brightness-slider"),
     contrast: document.getElementById("contrast-slider"),
     saturation: document.getElementById("saturation-slider"),
@@ -244,251 +785,78 @@ document.addEventListener("DOMContentLoaded", function () {
     brightnessOutput: document.getElementById("brightness-output"),
     contrastOutput: document.getElementById("contrast-output"),
     saturationOutput: document.getElementById("saturation-output"),
-    hueOutput: document.getElementById("hue-output"),
-    subtitleToggle: document.getElementById("subtitle-toggle"),
-    subtitleFile: document.getElementById("subtitle-file"),
-    resetPicture: document.getElementById("reset-picture-button")
+    hueOutput: document.getElementById("hue-output")
   };
 
-  let subtitleObjectUrl = null;
   let hls = null;
-  let lastSavedSecond = -1;
-  let controlsHideTimer = null;
-  let lastPointerMoveTime = 0;
-  let tapCount = 0;
+  let hideTimer = null;
+  let localSubtitleUrl = null;
   let tapTimer = null;
-  let suppressAutoReveal = false;
-  const isIOSDevice = (
-    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
-  );
+  let tapCount = 0;
+  let lastSavedSecond = -1;
+  const HIDE_DELAY = 3000;
 
-  const controlsPanel = document.getElementById("cinema-controls");
-  const advancedPanel = document.querySelector(".advanced-panel");
-  const CONTROLS_HIDE_DELAY = 3000;
+  player.controls = false;
 
-  function showMessage(text) {
+  function showMessage(text, delay = 2200) {
     message.textContent = text;
     message.hidden = false;
+    if (delay) window.setTimeout(() => message.hidden = true, delay);
   }
 
-  function hideMessage() {
-    message.hidden = true;
-  }
-
-  function clearControlsTimer() {
-    if (controlsHideTimer !== null) {
-      window.clearTimeout(controlsHideTimer);
-      controlsHideTimer = null;
+  function clearHideTimer() {
+    if (hideTimer) {
+      window.clearTimeout(hideTimer);
+      hideTimer = null;
     }
   }
 
-  function controlsMustRemainVisible() {
-    if (player.paused || player.ended) {
-      return true;
-    }
-
-    if (advancedPanel && advancedPanel.open) {
-      return true;
-    }
-
-    return false;
-  }
-
-  function hidePlayerControls() {
-    clearControlsTimer();
-
-    if (controlsMustRemainVisible()) {
-      return;
-    }
-
-    stage.classList.add("controls-hidden");
-  }
-
-  function scheduleControlsHide() {
-    clearControlsTimer();
-
-    if (controlsMustRemainVisible()) {
-      return;
-    }
-
-    controlsHideTimer = window.setTimeout(
-      hidePlayerControls,
-      CONTROLS_HIDE_DELAY
-    );
-  }
-
-  function showPlayerControls() {
+  function showControls() {
+    clearHideTimer();
     stage.classList.remove("controls-hidden");
-    scheduleControlsHide();
-  }
-
-  function showControlsOnly() {
-    clearControlsTimer();
-    stage.classList.remove("controls-hidden");
-    scheduleControlsHide();
+    if (!player.paused && !player.ended) {
+      hideTimer = window.setTimeout(() => {
+        stage.classList.add("controls-hidden");
+      }, HIDE_DELAY);
+    }
   }
 
   function hideControlsNow() {
-    clearControlsTimer();
-
+    clearHideTimer();
     if (!player.paused && !player.ended) {
       stage.classList.add("controls-hidden");
     }
   }
 
-  function updateFullscreenButton() {
-    controls.fullscreen.textContent = document.fullscreenElement
-      ? "Exit Fullscreen"
-      : "Fullscreen";
-  }
-
   function formatTime(seconds) {
     if (!Number.isFinite(seconds)) return "00:00";
-
     const total = Math.max(0, Math.floor(seconds));
     const hours = Math.floor(total / 3600);
     const minutes = Math.floor((total % 3600) / 60);
     const secs = total % 60;
-
-    if (hours > 0) {
-      return [
-        String(hours).padStart(2, "0"),
-        String(minutes).padStart(2, "0"),
-        String(secs).padStart(2, "0")
-      ].join(":");
-    }
-
-    return [
-      String(minutes).padStart(2, "0"),
-      String(secs).padStart(2, "0")
-    ].join(":");
+    return hours > 0
+      ? [hours, minutes, secs].map(v => String(v).padStart(2, "0")).join(":")
+      : [minutes, secs].map(v => String(v).padStart(2, "0")).join(":");
   }
 
-  function updatePlayButtons() {
-    const isPaused = player.paused;
-    controls.play.textContent = isPaused ? "Play" : "Pause";
-    controls.centerPlay.textContent = isPaused ? "▶" : "❚❚";
-    screen.classList.toggle("is-playing", !isPaused);
+  function updatePlayState() {
+    const paused = player.paused;
+    controls.play.textContent = paused ? "▶" : "❚❚";
+    controls.centerPlay.textContent = paused ? "▶" : "❚❚";
+    stage.classList.toggle("is-playing", !paused);
   }
 
   async function togglePlayback() {
     try {
-      if (player.paused) {
-        await player.play();
-      } else {
-        player.pause();
-      }
+      if (player.paused) await player.play();
+      else player.pause();
     } catch (error) {
-      showMessage("Playback was blocked. Tap Play again.");
+      showMessage("تعذر بدء التشغيل. اضغط مرة أخرى.");
     }
-  }
-
-  function applyPictureFilters() {
-    const brightness = controls.brightness.value;
-    const contrast = controls.contrast.value;
-    const saturation = controls.saturation.value;
-    const hue = controls.hue.value;
-
-    player.style.filter = [
-      `brightness(${brightness}%)`,
-      `contrast(${contrast}%)`,
-      `saturate(${saturation}%)`,
-      `hue-rotate(${hue}deg)`
-    ].join(" ");
-
-    controls.brightnessOutput.value = brightness + "%";
-    controls.contrastOutput.value = contrast + "%";
-    controls.saturationOutput.value = saturation + "%";
-    controls.hueOutput.value = hue + "°";
-  }
-
-  function srtToVtt(text) {
-    const normalized = text
-      .replace(/\r\n/g, "\n")
-      .replace(/\r/g, "\n");
-
-    const lines = normalized.split("\n");
-    const converted = lines
-      .filter(function (line) {
-        return !/^\s*\d+\s*$/.test(line);
-      })
-      .map(function (line) {
-        return line.includes("-->") ? line.replace(/,/g, ".") : line;
-      })
-      .join("\n");
-
-    return "WEBVTT\n\n" + converted.trim() + "\n";
-  }
-
-  function enableFirstSubtitleTrack() {
-    if (!player.textTracks) return;
-
-    for (let index = 0; index < player.textTracks.length; index += 1) {
-      player.textTracks[index].mode = index === 0 ? "showing" : "disabled";
-    }
-  }
-
-  function toggleSubtitles() {
-    if (!player.textTracks || player.textTracks.length === 0) {
-      showMessage("No subtitle track is loaded.");
-      return;
-    }
-
-    const shouldShow = player.textTracks[0].mode !== "showing";
-
-    for (let index = 0; index < player.textTracks.length; index += 1) {
-      player.textTracks[index].mode = shouldShow ? "showing" : "disabled";
-    }
-
-    controls.subtitleToggle.textContent = shouldShow
-      ? "Subtitles: on"
-      : "Subtitles: off";
-  }
-
-  function addLocalSubtitle(file, content) {
-    if (subtitleObjectUrl) {
-      URL.revokeObjectURL(subtitleObjectUrl);
-    }
-
-    const isSrt = file.name.toLowerCase().endsWith(".srt");
-    const vttContent = isSrt ? srtToVtt(content) : content;
-    const blob = new Blob([vttContent], { type: "text/vtt" });
-    subtitleObjectUrl = URL.createObjectURL(blob);
-
-    const existingLocalTrack = player.querySelector("track[data-local-subtitle]");
-    if (existingLocalTrack) {
-      existingLocalTrack.remove();
-    }
-
-    const track = document.createElement("track");
-    track.kind = "subtitles";
-    track.label = file.name;
-    track.srclang = "ar";
-    track.src = subtitleObjectUrl;
-    track.default = true;
-    track.dataset.localSubtitle = "true";
-    player.appendChild(track);
-
-    track.addEventListener("load", function () {
-      for (let index = 0; index < player.textTracks.length; index += 1) {
-        player.textTracks[index].mode = "disabled";
-      }
-
-      if (player.textTracks.length > 0) {
-        player.textTracks[player.textTracks.length - 1].mode = "showing";
-      }
-
-      controls.subtitleToggle.textContent = "Subtitles: on";
-      showMessage("Subtitle loaded successfully.");
-      window.setTimeout(hideMessage, 2200);
-    });
   }
 
   function initializeSource() {
-    if (sourceType !== "hls") {
-      return;
-    }
+    if (sourceType !== "hls") return;
 
     if (player.canPlayType("application/vnd.apple.mpegurl")) {
       player.src = remoteSource;
@@ -496,89 +864,67 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (window.Hls && window.Hls.isSupported()) {
-      hls = new window.Hls({
-        enableWorker: true,
-        lowLatencyMode: false
-      });
-
+      hls = new window.Hls({ enableWorker: true });
       hls.loadSource(remoteSource);
       hls.attachMedia(player);
-
       hls.on(window.Hls.Events.ERROR, function (_, data) {
         if (!data.fatal) return;
-
-        if (data.type === window.Hls.ErrorTypes.NETWORK_ERROR) {
-          hls.startLoad();
-        } else if (data.type === window.Hls.ErrorTypes.MEDIA_ERROR) {
-          hls.recoverMediaError();
-        } else {
-          hls.destroy();
-          showMessage("The HLS stream could not be played.");
-        }
+        if (data.type === window.Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
+        else if (data.type === window.Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
+        else showMessage("تعذر تشغيل بث HLS.");
       });
-
       return;
     }
 
-    showMessage("This browser does not support HLS playback.");
+    showMessage("هذا المتصفح لا يدعم تشغيل HLS.");
   }
 
-  function restorePlaybackPosition() {
-    const saved = Number(localStorage.getItem(player.dataset.resumeKey));
+  function applyPicture() {
+    const b = controls.brightness.value;
+    const c = controls.contrast.value;
+    const s = controls.saturation.value;
+    const h = controls.hue.value;
 
-    if (
-      Number.isFinite(saved) &&
-      saved > 5 &&
-      Number.isFinite(player.duration) &&
-      saved < player.duration - 10
-    ) {
-      player.currentTime = saved;
-      showMessage("Playback resumed from your previous position.");
-      window.setTimeout(hideMessage, 2400);
-    }
+    player.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%) hue-rotate(${h}deg)`;
+    controls.brightnessOutput.value = b + "%";
+    controls.contrastOutput.value = c + "%";
+    controls.saturationOutput.value = s + "%";
+    controls.hueOutput.value = h + "°";
   }
 
-  controls.centerPlay.addEventListener("click", function (event) {
-    event.stopPropagation();
-    togglePlayback();
-  });
-
-  controls.play.addEventListener("click", function (event) {
-    event.stopPropagation();
-    togglePlayback();
-  });
-
-  player.addEventListener("click", togglePlayback);
-
-  function handleSingleTap() {
-    suppressAutoReveal = true;
-
-    togglePlayback().finally(function () {
-      window.setTimeout(function () {
-        suppressAutoReveal = false;
-      }, 100);
-    });
+  function srtToVtt(text) {
+    const body = text
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n")
+      .split("\n")
+      .filter(line => !/^\s*\d+\s*$/.test(line))
+      .map(line => line.includes("-->") ? line.replace(/,/g, ".") : line)
+      .join("\n");
+    return "WEBVTT\n\n" + body.trim() + "\n";
   }
 
-  function handleDoubleTap() {
-    showControlsOnly();
-  }
-
-  function handleScreenPointerUp(event) {
-    if (
-      event.target.closest(".cinema-controls") ||
-      event.target.closest(".advanced-panel") ||
-      event.target.closest(".center-play-button")
-    ) {
+  function toggleSubtitles() {
+    if (!player.textTracks || player.textTracks.length === 0) {
+      showMessage("لا توجد ترجمة محملة.");
       return;
     }
+    const show = player.textTracks[0].mode !== "showing";
+    for (let i = 0; i < player.textTracks.length; i += 1) {
+      player.textTracks[i].mode = show ? "showing" : "disabled";
+    }
+    showMessage(show ? "تم تشغيل الترجمة." : "تم إيقاف الترجمة.");
+  }
+
+  function handleScreenTap(event) {
+    if (event.target.closest("button, input, select, summary, label")) return;
 
     tapCount += 1;
 
     if (tapCount === 1) {
       tapTimer = window.setTimeout(function () {
         tapCount = 0;
-        handleSingleTap();
+        togglePlayback();
+        hideControlsNow();
       }, 260);
       return;
     }
@@ -586,113 +932,51 @@ document.addEventListener("DOMContentLoaded", function () {
     window.clearTimeout(tapTimer);
     tapTimer = null;
     tapCount = 0;
-    handleDoubleTap();
+    showControls();
   }
 
-  screen.addEventListener("pointerup", handleScreenPointerUp);
+  videoWrap.addEventListener("pointerup", handleScreenTap);
 
-  player.addEventListener("play", function () {
-    updatePlayButtons();
-
-    if (suppressAutoReveal) {
-      hideControlsNow();
-      return;
-    }
-
-    showPlayerControls();
+  controls.centerPlay.addEventListener("click", function (event) {
+    event.stopPropagation();
+    togglePlayback();
   });
 
-  player.addEventListener("pause", function () {
-    updatePlayButtons();
-    clearControlsTimer();
+  controls.play.addEventListener("click", togglePlayback);
 
-    if (suppressAutoReveal) {
-      hideControlsNow();
-      return;
-    }
-
-    stage.classList.remove("controls-hidden");
-  });
-
-  controls.backward.addEventListener("click", function () {
+  controls.backward.addEventListener("click", () => {
     player.currentTime = Math.max(0, player.currentTime - 10);
   });
 
-  controls.forward.addEventListener("click", function () {
-    player.currentTime = Math.min(
-      Number.isFinite(player.duration) ? player.duration : player.currentTime + 10,
-      player.currentTime + 10
-    );
+  controls.forward.addEventListener("click", () => {
+    const target = player.currentTime + 10;
+    player.currentTime = Number.isFinite(player.duration)
+      ? Math.min(player.duration, target)
+      : target;
   });
 
-  controls.volume.addEventListener("input", function () {
+  controls.volume.addEventListener("input", () => {
     player.volume = Number(controls.volume.value);
     player.muted = player.volume === 0;
   });
 
-  controls.speed.addEventListener("change", function () {
+  controls.speed.addEventListener("change", () => {
     player.playbackRate = Number(controls.speed.value);
   });
 
-  controls.progress.addEventListener("input", function () {
+  controls.progress.addEventListener("input", () => {
     if (!Number.isFinite(player.duration)) return;
-    player.currentTime = (
-      Number(controls.progress.value) / 100
-    ) * player.duration;
-  });
-
-  player.addEventListener("loadedmetadata", function () {
-    controls.duration.textContent = formatTime(player.duration);
-    restorePlaybackPosition();
-    enableFirstSubtitleTrack();
-  });
-
-  player.addEventListener("timeupdate", function () {
-    controls.currentTime.textContent = formatTime(player.currentTime);
-
-    if (Number.isFinite(player.duration) && player.duration > 0) {
-      controls.progress.value = (
-        player.currentTime / player.duration
-      ) * 100;
-    }
-
-    const currentSecond = Math.floor(player.currentTime);
-    if (currentSecond !== lastSavedSecond && currentSecond % 5 === 0) {
-      localStorage.setItem(
-        player.dataset.resumeKey,
-        String(player.currentTime)
-      );
-      lastSavedSecond = currentSecond;
-    }
-  });
-
-  player.addEventListener("ended", function () {
-    clearControlsTimer();
-    stage.classList.remove("controls-hidden");
-    localStorage.removeItem(player.dataset.resumeKey);
-    updatePlayButtons();
-  });
-
-  player.addEventListener("error", function () {
-    showMessage(
-      "The video could not be loaded. Check the Google Drive API configuration, service-account access, and file sharing."
-    );
+    player.currentTime = Number(controls.progress.value) / 100 * player.duration;
   });
 
   controls.fullscreen.addEventListener("click", async function () {
     try {
-      clearControlsTimer();
-      controls.fullscreen.blur();
-
       if (document.fullscreenElement) {
         await document.exitFullscreen();
         return;
       }
 
-      if (
-        isIOSDevice &&
-        typeof player.webkitEnterFullscreen === "function"
-      ) {
+      if (isIOS && typeof player.webkitEnterFullscreen === "function") {
         player.controls = true;
         player.webkitEnterFullscreen();
         return;
@@ -706,52 +990,22 @@ document.addEventListener("DOMContentLoaded", function () {
       if (typeof player.webkitEnterFullscreen === "function") {
         player.controls = true;
         player.webkitEnterFullscreen();
-        return;
       }
-
-      throw new Error("Fullscreen unavailable");
     } catch (error) {
-      player.controls = false;
-      showMessage("Fullscreen is not available on this device.");
+      showMessage("ملء الشاشة غير متاح على هذا الجهاز.");
     }
-  });
-
-  controls.theater.addEventListener("click", function () {
-    layout.classList.toggle("theater-mode");
-    controls.theater.classList.toggle("active");
   });
 
   controls.pip.addEventListener("click", async function () {
     try {
-      if (!document.pictureInPictureEnabled || player.disablePictureInPicture) {
-        throw new Error("Unavailable");
+      if (!document.pictureInPictureEnabled || !player.requestPictureInPicture) {
+        throw new Error();
       }
-
-      if (document.pictureInPictureElement) {
-        await document.exitPictureInPicture();
-      } else {
-        await player.requestPictureInPicture();
-      }
+      if (document.pictureInPictureElement) await document.exitPictureInPicture();
+      else await player.requestPictureInPicture();
     } catch (error) {
-      showMessage("Picture in Picture is not supported on this device.");
+      showMessage("ميزة صورة داخل صورة غير متاحة.");
     }
-  });
-
-  [
-    controls.brightness,
-    controls.contrast,
-    controls.saturation,
-    controls.hue
-  ].forEach(function (control) {
-    control.addEventListener("input", applyPictureFilters);
-  });
-
-  controls.resetPicture.addEventListener("click", function () {
-    controls.brightness.value = 100;
-    controls.contrast.value = 100;
-    controls.saturation.value = 100;
-    controls.hue.value = 0;
-    applyPictureFilters();
   });
 
   controls.subtitleToggle.addEventListener("click", toggleSubtitles);
@@ -760,139 +1014,138 @@ document.addEventListener("DOMContentLoaded", function () {
     const file = controls.subtitleFile.files[0];
     if (!file) return;
 
-    const validExtension = /\.(srt|vtt)$/i.test(file.name);
-    if (!validExtension) {
-      showMessage("Choose an SRT or VTT subtitle file.");
-      controls.subtitleFile.value = "";
-      return;
-    }
-
     const reader = new FileReader();
     reader.onload = function () {
-      addLocalSubtitle(file, String(reader.result || ""));
-    };
-    reader.onerror = function () {
-      showMessage("The subtitle file could not be read.");
-    };
-    reader.readAsText(file, "UTF-8");
-  });
+      if (localSubtitleUrl) URL.revokeObjectURL(localSubtitleUrl);
 
-  document.addEventListener("keydown", function (event) {
-    const target = event.target;
-    if (target && ["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName)) {
-      return;
-    }
+      const content = file.name.toLowerCase().endsWith(".srt")
+        ? srtToVtt(String(reader.result))
+        : String(reader.result);
 
-    if (event.code === "Space") {
-      event.preventDefault();
-      togglePlayback();
-    } else if (event.code === "ArrowLeft") {
-      player.currentTime = Math.max(0, player.currentTime - 10);
-    } else if (event.code === "ArrowRight") {
-      player.currentTime = Math.min(
-        player.duration || player.currentTime + 10,
-        player.currentTime + 10
-      );
-    } else if (event.key.toLowerCase() === "f") {
-      controls.fullscreen.click();
-    }
-  });
+      localSubtitleUrl = URL.createObjectURL(new Blob([content], { type: "text/vtt" }));
 
-  stage.addEventListener("mousemove", function () {
-    const now = Date.now();
+      const old = player.querySelector("track[data-local]");
+      if (old) old.remove();
 
-    if (now - lastPointerMoveTime < 80) {
-      return;
-    }
+      const track = document.createElement("track");
+      track.kind = "subtitles";
+      track.label = file.name;
+      track.srclang = "ar";
+      track.src = localSubtitleUrl;
+      track.default = true;
+      track.dataset.local = "true";
+      player.appendChild(track);
 
-    lastPointerMoveTime = now;
-    showPlayerControls();
-  });
-
-  stage.addEventListener("mouseenter", showPlayerControls);
-
-  stage.addEventListener(
-    "touchstart",
-    showPlayerControls,
-    { passive: true }
-  );
-
-  stage.addEventListener("pointerdown", showPlayerControls);
-
-  stage.addEventListener("mouseleave", function () {
-    if (!player.paused && !player.ended) {
-      hidePlayerControls();
-    }
-  });
-
-  if (controlsPanel) {
-    controlsPanel.addEventListener("pointerdown", clearControlsTimer);
-    controlsPanel.addEventListener("pointerup", scheduleControlsHide);
-    controlsPanel.addEventListener("pointercancel", scheduleControlsHide);
-
-    controlsPanel.addEventListener("click", function (event) {
-      event.stopPropagation();
-      showPlayerControls();
-    });
-  }
-
-  if (advancedPanel) {
-    advancedPanel.addEventListener("toggle", function () {
-      stage.classList.remove("controls-hidden");
-
-      if (advancedPanel.open) {
-        clearControlsTimer();
-      } else {
-        scheduleControlsHide();
-      }
-    });
-  }
-
-  document.addEventListener("fullscreenchange", function () {
-    const isFullscreen = document.fullscreenElement === stage;
-
-    stage.classList.toggle("is-fullscreen", isFullscreen);
-    updateFullscreenButton();
-    clearControlsTimer();
-
-    if (isFullscreen) {
-      window.setTimeout(function () {
-        if (!player.paused && !player.ended) {
-          stage.classList.add("controls-hidden");
+      track.addEventListener("load", function () {
+        for (let i = 0; i < player.textTracks.length; i += 1) {
+          player.textTracks[i].mode = i === player.textTracks.length - 1
+            ? "showing"
+            : "disabled";
         }
-      }, 150);
-    } else {
-      player.controls = false;
-      stage.classList.remove("controls-hidden");
+        showMessage("تم تحميل ملف الترجمة.");
+      });
+    };
+    reader.readAsText(file);
+  });
+
+  [controls.brightness, controls.contrast, controls.saturation, controls.hue]
+    .forEach(input => input.addEventListener("input", applyPicture));
+
+  controls.resetPicture.addEventListener("click", function () {
+    controls.brightness.value = 100;
+    controls.contrast.value = 100;
+    controls.saturation.value = 100;
+    controls.hue.value = 0;
+    applyPicture();
+  });
+
+  document.getElementById("settings-jump").addEventListener("click", function () {
+    const panel = document.getElementById("advanced-panel");
+    panel.open = true;
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+
+  document.getElementById("subtitle-jump").addEventListener("click", toggleSubtitles);
+
+  document.getElementById("share-button").addEventListener("click", async function () {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: document.title, url: window.location.href });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        showMessage("تم نسخ رابط الصفحة.");
+      }
+    } catch (error) {}
+  });
+
+  player.addEventListener("loadedmetadata", function () {
+    controls.duration.textContent = formatTime(player.duration);
+
+    const saved = Number(localStorage.getItem(player.dataset.resumeKey));
+    if (
+      Number.isFinite(saved) &&
+      saved > 5 &&
+      saved < player.duration - 10
+    ) {
+      player.currentTime = saved;
+      showMessage("تم استكمال المشاهدة من الموضع السابق.");
+    }
+
+    if (player.textTracks && player.textTracks.length) {
+      player.textTracks[0].mode = "showing";
     }
   });
 
-  window.addEventListener("beforeunload", function () {
-    clearControlsTimer();
+  player.addEventListener("timeupdate", function () {
+    controls.current.textContent = formatTime(player.currentTime);
 
-    if (tapTimer !== null) {
-      window.clearTimeout(tapTimer);
+    if (Number.isFinite(player.duration) && player.duration > 0) {
+      controls.progress.value = player.currentTime / player.duration * 100;
     }
 
-    localStorage.setItem(
-      player.dataset.resumeKey,
-      String(player.currentTime)
-    );
-
-    if (subtitleObjectUrl) {
-      URL.revokeObjectURL(subtitleObjectUrl);
-    }
-
-    if (hls) {
-      hls.destroy();
+    const second = Math.floor(player.currentTime);
+    if (second !== lastSavedSecond && second % 5 === 0) {
+      localStorage.setItem(player.dataset.resumeKey, String(player.currentTime));
+      lastSavedSecond = second;
     }
   });
+
+  player.addEventListener("play", function () {
+    updatePlayState();
+    showControls();
+  });
+
+  player.addEventListener("pause", function () {
+    updatePlayState();
+    showControls();
+  });
+
+  player.addEventListener("ended", function () {
+    updatePlayState();
+    localStorage.removeItem(player.dataset.resumeKey);
+    showControls();
+  });
+
+  player.addEventListener("error", function () {
+    showMessage("تعذر تحميل الفيديو. تحقق من رابط الملف وصلاحيات Google Drive.");
+  });
+
+  player.addEventListener("webkitbeginfullscreen", () => {
+    player.controls = true;
+  });
+
+  player.addEventListener("webkitendfullscreen", () => {
+    player.controls = false;
+    updatePlayState();
+  });
+
+  stage.addEventListener("mousemove", showControls);
+  stage.addEventListener("mouseenter", showControls);
 
   initializeSource();
-  applyPictureFilters();
-  updatePlayButtons();
-  updateFullscreenButton();
-  stage.classList.remove("controls-hidden");
+  applyPicture();
+  updatePlayState();
+  showControls();
 });
 </script>
 {% endif %}
