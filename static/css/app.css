@@ -1619,3 +1619,219 @@ video::cue {
     font-size: 8px;
   }
 }
+
+
+/* ==========================================================
+   REEMA CINEMA — Neon Movie Cards V2
+   Extra depth, stronger glow, brighter highlights
+   Add this AFTER the previous Neon Drawer Cards code
+   ========================================================== */
+
+.movie-grid {
+  gap: 30px 24px;
+}
+
+.movie-card {
+  padding: 12px;
+  border: 1px solid rgba(112, 220, 255, 0.42);
+  background:
+    radial-gradient(circle at 50% -8%, rgba(64, 224, 255, .20), transparent 34%),
+    radial-gradient(circle at 88% 110%, rgba(170, 76, 255, .18), transparent 34%),
+    linear-gradient(180deg, rgba(17, 26, 51, .98), rgba(5, 9, 22, .99));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    inset 0 -12px 30px rgba(0,0,0,.34),
+    0 18px 40px rgba(0,0,0,.46),
+    0 0 0 2px rgba(40, 160, 255, .08),
+    0 0 24px rgba(41, 185, 255, .18),
+    0 0 44px rgba(147, 63, 255, .10);
+  transform:
+    translateZ(0)
+    perspective(900px)
+    rotateX(1.5deg);
+}
+
+.movie-card::before {
+  inset: 7px;
+  border: 1px solid rgba(121, 225, 255, .18);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.055),
+      rgba(45, 143, 255, .08) 42%,
+      rgba(171, 72, 255, .055)
+    );
+  box-shadow:
+    inset 0 0 22px rgba(57, 194, 255, .08),
+    inset 0 1px 0 rgba(255,255,255,.07);
+}
+
+.movie-card::after {
+  right: 14px;
+  bottom: -14px;
+  left: 14px;
+  height: 24px;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(31, 102, 255, .48),
+      rgba(44, 222, 255, .76),
+      rgba(179, 69, 255, .58)
+    );
+  filter: blur(18px);
+  opacity: .92;
+}
+
+.movie-card:hover {
+  transform:
+    translateY(-12px)
+    perspective(900px)
+    rotateX(2deg)
+    scale(1.025);
+  border-color: rgba(151, 239, 255, .72);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 0 -12px 30px rgba(0,0,0,.30),
+    0 28px 58px rgba(0,0,0,.55),
+    0 0 0 2px rgba(70, 184, 255, .13),
+    0 0 34px rgba(47, 204, 255, .34),
+    0 0 60px rgba(167, 76, 255, .20);
+}
+
+.movie-card:hover::after {
+  opacity: 1;
+  filter: blur(24px);
+}
+
+.poster {
+  border: 1px solid rgba(154, 235, 255, .48);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.08),
+    inset 0 -22px 44px rgba(0,0,0,.30),
+    0 0 0 7px rgba(47, 134, 255, .06),
+    0 16px 34px rgba(0,0,0,.48),
+    0 0 30px rgba(46, 210, 255, .19),
+    0 0 52px rgba(161, 70, 255, .11);
+}
+
+.poster::before {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.20), transparent 18%),
+    linear-gradient(to top, rgba(3, 8, 22, .62), transparent 42%);
+  opacity: .95;
+}
+
+.poster::after {
+  inset: auto 7% -10px;
+  height: 20px;
+  background:
+    linear-gradient(
+      90deg,
+      #2367ff,
+      #29e1ff 48%,
+      #bd4dff
+    );
+  filter: blur(15px);
+  opacity: .96;
+}
+
+.movie-card:hover .poster {
+  border-color: rgba(189, 247, 255, .82);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.10),
+    inset 0 -22px 44px rgba(0,0,0,.26),
+    0 0 0 7px rgba(47, 134, 255, .08),
+    0 18px 38px rgba(0,0,0,.50),
+    0 0 40px rgba(46, 210, 255, .30),
+    0 0 70px rgba(161, 70, 255, .16);
+}
+
+.play-circle {
+  width: 50px;
+  height: 50px;
+  border: 1px solid rgba(255,255,255,.52);
+  background:
+    radial-gradient(circle at 30% 22%, rgba(255,255,255,.26), transparent 38%),
+    linear-gradient(145deg, #c35cff, #27c8ff);
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.42),
+    0 0 0 8px rgba(69, 185, 255, .09),
+    0 0 28px rgba(63, 205, 255, .58),
+    0 0 42px rgba(178, 76, 255, .28);
+}
+
+.movie-card h3 {
+  color: #ffffff;
+  text-shadow:
+    0 0 10px rgba(81, 190, 255, .13);
+}
+
+.movie-meta {
+  color: #a8bfe0;
+}
+
+/* Extra top-edge highlight */
+.movie-card .poster::before {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.11);
+}
+
+/* Touch feedback */
+.movie-card:active {
+  transform:
+    translateY(-4px)
+    perspective(900px)
+    rotateX(1deg)
+    scale(.99);
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .movie-grid {
+    gap: 24px 16px;
+  }
+
+  .movie-card {
+    padding: 10px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 650px) {
+  .movie-grid {
+    gap: 18px 12px;
+  }
+
+  .movie-card {
+    padding: 8px;
+    border-color: rgba(112, 220, 255, .34);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.10),
+      inset 0 -9px 22px rgba(0,0,0,.30),
+      0 13px 28px rgba(0,0,0,.42),
+      0 0 18px rgba(42, 190, 255, .14);
+  }
+
+  .movie-card::after {
+    right: 9px;
+    left: 9px;
+    bottom: -10px;
+    height: 18px;
+    filter: blur(14px);
+  }
+
+  .poster {
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.06),
+      0 10px 22px rgba(0,0,0,.42),
+      0 0 20px rgba(46, 210, 255, .15);
+  }
+
+  .play-circle {
+    width: 40px;
+    height: 40px;
+    box-shadow:
+      0 8px 20px rgba(0,0,0,.36),
+      0 0 20px rgba(63, 205, 255, .42);
+  }
+}
