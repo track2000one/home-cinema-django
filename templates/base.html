@@ -3,28 +3,40 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>{% block title %}Home Cinema{% endblock %}</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#09090b">
+  <title>{% block title %}REEMA CINEMA{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <link rel="stylesheet" href="{% static 'css/ux-polish.css' %}">
+  {% block extra_head %}{% endblock %}
 </head>
 <body>
 <header class="topbar">
-<a
-  href="{% url 'movies:library' %}"
-  class="brand brand-with-logo"
-  aria-label="Home Cinema"
->
-  <img
-    src="{% static 'images/maghrabi-logo.png' %}"
-    alt="MAGHRABI.M79"
-    class="header-logo"
+  <a
+    href="{% url 'movies:library' %}"
+    class="brand brand-with-logo"
+    aria-label="REEMA CINEMA home"
   >
-</a>
+    <img
+      src="{% static 'images/maghrabi-logo.png' %}"
+      alt="MAGHRABI.M79"
+      class="header-logo"
+      decoding="async"
+    >
+  </a>
 
   {% if user.is_authenticated %}
-  <nav>
-    <a href="{% url 'movies:library' %}">Movies</a>
-    <a href="{% url 'series:library' %}">Series</a>
+  <nav aria-label="Primary navigation">
+    <a
+      href="{% url 'movies:library' %}"
+      class="{% if request.resolver_match.namespace == 'movies' %}is-active{% endif %}"
+      {% if request.resolver_match.namespace == 'movies' %}aria-current="page"{% endif %}
+    >Movies</a>
+    <a
+      href="{% url 'series:library' %}"
+      class="{% if request.resolver_match.namespace == 'series' %}is-active{% endif %}"
+      {% if request.resolver_match.namespace == 'series' %}aria-current="page"{% endif %}
+    >Series</a>
     {% if user.is_staff %}<a href="/admin/">Admin</a>{% endif %}
     <form method="post" action="{% url 'logout' %}">
       {% csrf_token %}
