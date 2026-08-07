@@ -96,16 +96,20 @@ input:focus-visible {
   background: linear-gradient(135deg, #a95cff, #277dff);
 }
 
-@media (max-width: 760px) {
+@media (max-width: 850px) {
   .topbar {
     min-height: 66px;
     height: auto;
-    padding-block: 8px;
-    gap: 10px;
+    padding: 8px 12px;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
   .topbar nav {
-    gap: 5px;
+    order: 2;
+    width: 100%;
+    display: flex;
+    gap: 6px;
     overflow-x: auto;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
@@ -117,8 +121,12 @@ input:focus-visible {
 
   .topbar nav a,
   .topbar nav button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
     min-height: 38px;
-    padding: 8px 9px;
+    padding: 8px 10px;
     border-radius: 9px;
     white-space: nowrap;
     font-size: 12px;
