@@ -1,15 +1,22 @@
 {% extends "base.html" %}
-{% block title %}Movie Library{% endblock %}
+{% block title %}Movies | REEMA CINEMA{% endblock %}
 {% block content %}
 <section class="hero">
   <div class="hero-content">
-    <span class="kicker">Private home network</span>
+    <span class="kicker">Private home cinema</span>
     <h1>Your movie library in one place</h1>
-    <p>Browse and play movies directly from the storage connected to your server.</p>
+    <p>Browse, filter, and start watching with fewer taps across desktop, tablet, and mobile.</p>
 
-    <form class="search-bar" method="get">
-      <input type="search" name="q" value="{{ query }}" placeholder="Search movies...">
-      <select name="genre">
+    <form class="search-bar" method="get" role="search" aria-label="Search movies">
+      <input
+        type="search"
+        name="q"
+        value="{{ query }}"
+        placeholder="Search movies..."
+        aria-label="Search movie title"
+        autocomplete="off"
+      >
+      <select name="genre" aria-label="Filter by genre">
         <option value="">All genres</option>
         {% for genre in genres %}
           <option value="{{ genre }}" {% if selected_genre == genre %}selected{% endif %}>{{ genre }}</option>
@@ -29,22 +36,36 @@
     <span class="movie-count">{{ movies|length }} movies</span>
   </div>
 
+  {% if query or selected_genre %}
+  <div class="catalog-toolbar">
+    <span class="result-summary">
+      Filtered results{% if query %} for “{{ query }}”{% endif %}{% if selected_genre %} in {{ selected_genre }}{% endif %}
+    </span>
+    <a class="filter-clear" href="{% url 'movies:library' %}">Clear filters</a>
+  </div>
+  {% endif %}
+
   <div class="movie-grid">
     {% for movie in movies %}
-      <a class="movie-card" href="{% url 'movies:detail' movie.slug %}">
+      <a class="movie-card" href="{% url 'movies:detail' movie.slug %}" aria-label="Play {{ movie.title }}">
         <div class="poster">
           {% if movie.poster %}
-            <img src="{{ movie.poster.url }}" alt="{{ movie.title }}">
+            <img
+              src="{{ movie.poster.url }}"
+              alt="{{ movie.title }} poster"
+              loading="lazy"
+              decoding="async"
+            >
           {% else %}
             <div class="poster-empty">
               <span>▶</span>
               <small>No poster</small>
             </div>
           {% endif %}
-          <div class="play-circle">▶</div>
+          <div class="play-circle" aria-hidden="true">▶</div>
         </div>
 
-        <h3>{{ movie.title }}</h3>
+        <h3 title="{{ movie.title }}">{{ movie.title }}</h3>
         <div class="movie-meta">
           <span>{{ movie.year|default:"—" }}</span>
           <span>{{ movie.genre|default:"Uncategorized" }}</span>
@@ -52,8 +73,9 @@
       </a>
     {% empty %}
       <div class="empty">
-        <h3>No movies yet</h3>
-        <p>Add movies from the admin panel or use the folder scan command.</p>
+        <h3>No movies found</h3>
+        <p>{% if query or selected_genre %}Try changing or clearing your filters.{% else %}Add movies from the admin panel to start your library.{% endif %}</p>
+        {% if query or selected_genre %}<a class="empty-action" href="{% url 'movies:library' %}">Show all movies</a>{% endif %}
       </div>
     {% endfor %}
   </div>
