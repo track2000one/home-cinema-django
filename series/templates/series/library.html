@@ -1,22 +1,32 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Series{% endblock %}
+{% block title %}Series | REEMA CINEMA{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'series/series.css' %}">
+{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'series/series.css' %}">
 <section class="series-page">
   <div class="series-hero">
     <div>
-      <span class="series-kicker">Home Cinema</span>
+      <span class="series-kicker">REEMA CINEMA</span>
       <h1>Series Library</h1>
       <p>Browse complete series, seasons, and episodes from one organized streaming library.</p>
     </div>
   </div>
 
-  <form class="series-search" method="get">
-    <input type="search" name="q" value="{{ query }}" placeholder="Search series...">
-    <select name="genre">
+  <form class="series-search" method="get" role="search" aria-label="Search series">
+    <input
+      type="search"
+      name="q"
+      value="{{ query }}"
+      placeholder="Search series..."
+      aria-label="Search series title"
+      autocomplete="off"
+    >
+    <select name="genre" aria-label="Filter by genre">
       <option value="">All genres</option>
       {% for genre in genres %}
       <option value="{{ genre }}" {% if selected_genre == genre %}selected{% endif %}>{{ genre }}</option>
@@ -25,12 +35,21 @@
     <button type="submit">Search</button>
   </form>
 
+  {% if query or selected_genre %}
+  <div class="series-toolbar">
+    <span class="result-summary">
+      Filtered results{% if query %} for “{{ query }}”{% endif %}{% if selected_genre %} in {{ selected_genre }}{% endif %}
+    </span>
+    <a class="filter-clear" href="{% url 'series:library' %}">Clear filters</a>
+  </div>
+  {% endif %}
+
   <div class="series-grid">
     {% for item in series_items %}
-    <a class="series-card" href="{% url 'series:detail' item.slug %}">
+    <a class="series-card" href="{% url 'series:detail' item.slug %}" aria-label="Open {{ item.title }}">
       <div class="series-poster">
         {% if item.poster %}
-        <img src="{{ item.poster.url }}" alt="{{ item.title }}">
+        <img src="{{ item.poster.url }}" alt="{{ item.title }} poster" loading="lazy" decoding="async">
         {% else %}
         <div class="series-poster-empty">SERIES</div>
         {% endif %}
@@ -40,12 +59,15 @@
         </div>
       </div>
       <div class="series-card-body">
-        <h2>{{ item.title }}</h2>
+        <h2 title="{{ item.title }}">{{ item.title }}</h2>
         <div class="series-meta"><span>{{ item.year|default:"—" }}</span><span>{{ item.genre|default:"Series" }}</span></div>
       </div>
     </a>
     {% empty %}
-    <div class="series-empty">No series found.</div>
+    <div class="series-empty">
+      <h3>No series found.</h3>
+      {% if query or selected_genre %}<a class="empty-action" href="{% url 'series:library' %}">Show all series</a>{% endif %}
+    </div>
     {% endfor %}
   </div>
 </section>
