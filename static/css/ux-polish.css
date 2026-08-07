@@ -1,0 +1,144 @@
+/* REEMA CINEMA — shared UX polish */
+
+:root {
+  --ux-focus: #33d6ff;
+  --ux-purple: #a95cff;
+}
+
+.topbar nav a,
+.topbar nav button {
+  position: relative;
+  transition: color .18s ease, background .18s ease;
+}
+
+.topbar nav a.is-active {
+  color: #fff;
+}
+
+.topbar nav a.is-active::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -10px;
+  left: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--ux-purple), var(--ux-focus));
+  box-shadow: 0 0 14px rgba(51, 214, 255, .34);
+}
+
+.search-bar,
+.series-search {
+  position: relative;
+}
+
+.search-bar input:focus,
+.search-bar select:focus,
+.series-search input:focus,
+.series-search select:focus,
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: 2px;
+}
+
+.filter-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 15px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 12px;
+  color: #c7cbd7;
+  background: rgba(255,255,255,.05);
+  font-size: 13px;
+}
+
+.filter-clear:hover {
+  color: #fff;
+  background: rgba(255,255,255,.09);
+}
+
+.catalog-toolbar,
+.series-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.result-summary {
+  color: #9b9ba5;
+  font-size: 13px;
+}
+
+.movie-card img,
+.series-card img {
+  background: #11141d;
+}
+
+.movie-card,
+.series-card {
+  content-visibility: auto;
+  contain-intrinsic-size: 280px 460px;
+}
+
+.empty-action {
+  display: inline-flex;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: #fff;
+  background: linear-gradient(135deg, #a95cff, #277dff);
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    min-height: 66px;
+    height: auto;
+    padding-block: 8px;
+    gap: 10px;
+  }
+
+  .topbar nav {
+    gap: 5px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .topbar nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .topbar nav a,
+  .topbar nav button {
+    min-height: 38px;
+    padding: 8px 9px;
+    border-radius: 9px;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+
+  .topbar nav a.is-active {
+    background: rgba(255,255,255,.07);
+  }
+
+  .topbar nav a.is-active::after {
+    display: none;
+  }
+
+  .catalog-toolbar,
+  .series-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .filter-clear {
+    width: 100%;
+  }
+}
