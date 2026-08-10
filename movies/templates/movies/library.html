@@ -52,28 +52,30 @@
   <div class="movie-grid crystal-grid">
     {% for movie in movies %}
       <a class="movie-card crystal-card" href="{% url 'movies:detail' movie.slug %}" aria-label="Play {{ movie.title }}">
-        <div class="poster crystal-poster">
-          {% if movie.poster %}
-            <img
-              src="{{ movie.poster.url }}"
-              alt="{{ movie.title }} poster"
-              loading="lazy"
-              decoding="async"
-            >
-          {% else %}
-            <div class="poster-empty">
-              <span>▶</span>
-              <small>No poster</small>
-            </div>
-          {% endif %}
-          <div class="crystal-play" aria-hidden="true">▶</div>
-        </div>
+        <div class="crystal-shell">
+          <div class="poster crystal-poster">
+            {% if movie.poster %}
+              <img
+                src="{{ movie.poster.url }}"
+                alt="{{ movie.title }} poster"
+                loading="lazy"
+                decoding="async"
+              >
+            {% else %}
+              <div class="poster-empty">
+                <span>▶</span>
+                <small>No poster</small>
+              </div>
+            {% endif %}
+            <div class="crystal-play" aria-hidden="true">▶</div>
+          </div>
 
-        <div class="crystal-info">
-          <h3 title="{{ movie.title }}">{{ movie.title }}{% if movie.year %} ({{ movie.year }}){% endif %}</h3>
-          <div class="movie-meta crystal-meta">
-            <span>{{ movie.year|default:"—" }}</span>
-            <span>{{ movie.genre|default:"Uncategorized" }}</span>
+          <div class="crystal-info">
+            <h3 title="{{ movie.title }}">{{ movie.title }}{% if movie.year %} ({{ movie.year }}){% endif %}</h3>
+            <div class="movie-meta crystal-meta">
+              <span>{{ movie.year|default:"—" }}</span>
+              <span>{{ movie.genre|default:"Uncategorized" }}</span>
+            </div>
           </div>
         </div>
 
