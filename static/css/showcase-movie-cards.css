@@ -1,6 +1,6 @@
 /* ==========================================================
-   REEMA CINEMA — Modern Showcase Movie Cards
-   Clean, premium, poster-first design
+   REEMA CINEMA — Modern Transparent Glass Movie Cards
+   Poster-first design with a clear page-background reveal
    ========================================================== */
 
 .showcase-grid {
@@ -28,25 +28,32 @@
   transform: translateY(-2px) scale(.992);
 }
 
+/*
+   The card body is intentionally transparent.
+   Only the glass edge, reflection and shadow remain visible,
+   so the real page background is clearly seen through it.
+*/
 .showcase-frame {
   position: relative;
   overflow: hidden;
-  padding: 10px;
-  border: 1px solid rgba(255,255,255,.10);
+  padding: 9px;
+  border: 1px solid rgba(214, 236, 255, .18);
   border-radius: 24px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.025)),
-    linear-gradient(135deg, rgba(111,169,255,.13), rgba(255,255,255,.035) 38%, rgba(167,106,255,.08)),
-    rgba(14,18,28,.84);
+  background: transparent;
   box-shadow:
-    0 18px 36px rgba(0,0,0,.34),
-    inset 0 1px 0 rgba(255,255,255,.09),
-    0 0 26px rgba(98,132,255,.065);
-  -webkit-backdrop-filter: blur(14px) saturate(135%);
-  backdrop-filter: blur(14px) saturate(135%);
-  transition: border-color .25s ease, box-shadow .25s ease, background .25s ease;
+    0 16px 34px rgba(0, 0, 0, .26),
+    inset 0 1px 0 rgba(255, 255, 255, .15),
+    inset 1px 0 0 rgba(255, 255, 255, .035),
+    inset -1px 0 0 rgba(110, 205, 255, .045),
+    0 0 22px rgba(91, 161, 255, .045);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  transition:
+    border-color .25s ease,
+    box-shadow .25s ease;
 }
 
+/* Glass edge / light refraction without filling the card */
 .showcase-frame::before {
   content: "";
   position: absolute;
@@ -55,21 +62,44 @@
   border-radius: inherit;
   pointer-events: none;
   background:
-    linear-gradient(140deg, rgba(255,255,255,.20), transparent 18%, transparent 78%, rgba(145,210,255,.09)),
-    radial-gradient(circle at top left, rgba(255,255,255,.10), transparent 28%);
-  opacity: .82;
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,.27) 0%,
+      rgba(255,255,255,.06) 10%,
+      transparent 24%,
+      transparent 72%,
+      rgba(107,203,255,.07) 88%,
+      rgba(205,176,255,.08) 100%
+    ),
+    radial-gradient(
+      ellipse at 16% 0%,
+      rgba(255,255,255,.13),
+      transparent 27%
+    );
+  opacity: .78;
+}
+
+/* Thin inner glass rim */
+.showcase-frame::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  z-index: 3;
+  border: 1px solid rgba(255,255,255,.045);
+  border-radius: 20px;
+  pointer-events: none;
 }
 
 .showcase-card:hover .showcase-frame {
-  border-color: rgba(174,219,255,.19);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.135), rgba(255,255,255,.03)),
-    linear-gradient(135deg, rgba(111,169,255,.17), rgba(255,255,255,.04) 38%, rgba(167,106,255,.10)),
-    rgba(14,18,28,.88);
+  border-color: rgba(177, 224, 255, .30);
+  background: transparent;
   box-shadow:
-    0 24px 46px rgba(0,0,0,.42),
-    inset 0 1px 0 rgba(255,255,255,.11),
-    0 0 30px rgba(98,132,255,.10);
+    0 22px 42px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.20),
+    inset 1px 0 0 rgba(255,255,255,.05),
+    inset -1px 0 0 rgba(107,210,255,.07),
+    0 0 28px rgba(88,189,255,.085),
+    0 0 42px rgba(147,94,255,.035);
 }
 
 .showcase-poster {
@@ -77,11 +107,11 @@
   z-index: 1;
   overflow: hidden;
   aspect-ratio: 2 / 3;
-  border: 1px solid rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.09);
   border-radius: 18px;
   background: #0d1119;
   box-shadow:
-    0 10px 24px rgba(0,0,0,.30),
+    0 10px 24px rgba(0,0,0,.29),
     inset 0 1px 0 rgba(255,255,255,.10);
 }
 
@@ -91,7 +121,9 @@
   display: block;
   object-fit: cover;
   transform: scale(1.001);
-  transition: transform .38s cubic-bezier(.2,.75,.25,1), filter .28s ease;
+  transition:
+    transform .38s cubic-bezier(.2,.75,.25,1),
+    filter .28s ease;
 }
 
 .showcase-card:hover .showcase-poster img {
@@ -105,8 +137,17 @@
   z-index: 2;
   pointer-events: none;
   background:
-    linear-gradient(to top, rgba(6,10,18,.54) 0%, rgba(6,10,18,.08) 31%, transparent 55%),
-    linear-gradient(to bottom, rgba(255,255,255,.07), transparent 15%);
+    linear-gradient(
+      to top,
+      rgba(6,10,18,.48) 0%,
+      rgba(6,10,18,.06) 29%,
+      transparent 53%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(255,255,255,.055),
+      transparent 15%
+    );
 }
 
 .showcase-play {
@@ -147,18 +188,20 @@
   border: 1px solid rgba(255,255,255,.14);
   border-radius: 999px;
   color: #eef8ff;
-  background: rgba(7,12,20,.56);
-  box-shadow: 0 6px 14px rgba(0,0,0,.20);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  background: rgba(7,12,20,.42);
+  box-shadow: 0 6px 14px rgba(0,0,0,.18);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   font-size: 12px;
   font-weight: 700;
 }
 
+/* Information area remains fully transparent */
 .showcase-info {
   position: relative;
   z-index: 2;
   padding: 14px 8px 7px;
+  background: transparent;
 }
 
 .showcase-info h3 {
@@ -170,7 +213,7 @@
   line-height: 1.28;
   white-space: nowrap;
   text-overflow: ellipsis;
-  text-shadow: 0 1px 3px rgba(0,0,0,.25);
+  text-shadow: 0 2px 5px rgba(0,0,0,.42);
 }
 
 .showcase-meta {
@@ -180,6 +223,7 @@
   gap: 6px 10px;
   color: rgba(223,233,245,.76);
   font-size: 12px;
+  text-shadow: 0 1px 3px rgba(0,0,0,.36);
 }
 
 .showcase-meta span + span::before {
@@ -195,7 +239,7 @@
   place-content: center;
   gap: 8px;
   color: rgba(255,255,255,.72);
-  background: linear-gradient(180deg, #161d28, #0f141c);
+  background: rgba(13,17,25,.38);
   text-align: center;
 }
 
@@ -231,8 +275,17 @@
   }
 
   .showcase-frame {
-    padding: 7px;
+    padding: 6px;
     border-radius: 18px;
+    box-shadow:
+      0 12px 24px rgba(0,0,0,.24),
+      inset 0 1px 0 rgba(255,255,255,.12),
+      0 0 16px rgba(88,189,255,.035);
+  }
+
+  .showcase-frame::after {
+    inset: 3px;
+    border-radius: 15px;
   }
 
   .showcase-poster {
