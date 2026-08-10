@@ -1,5 +1,9 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Movies | REEMA CINEMA{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/crystal-movie-cards.css' %}">
+{% endblock %}
 {% block content %}
 <section class="hero">
   <div class="hero-content">
@@ -45,10 +49,10 @@
   </div>
   {% endif %}
 
-  <div class="movie-grid">
+  <div class="movie-grid crystal-grid">
     {% for movie in movies %}
-      <a class="movie-card" href="{% url 'movies:detail' movie.slug %}" aria-label="Play {{ movie.title }}">
-        <div class="poster">
+      <a class="movie-card crystal-card" href="{% url 'movies:detail' movie.slug %}" aria-label="Play {{ movie.title }}">
+        <div class="poster crystal-poster">
           {% if movie.poster %}
             <img
               src="{{ movie.poster.url }}"
@@ -62,14 +66,18 @@
               <small>No poster</small>
             </div>
           {% endif %}
-          <div class="play-circle" aria-hidden="true">▶</div>
+          <div class="crystal-play" aria-hidden="true">▶</div>
         </div>
 
-        <h3 title="{{ movie.title }}">{{ movie.title }}</h3>
-        <div class="movie-meta">
-          <span>{{ movie.year|default:"—" }}</span>
-          <span>{{ movie.genre|default:"Uncategorized" }}</span>
+        <div class="crystal-info">
+          <h3 title="{{ movie.title }}">{{ movie.title }}{% if movie.year %} ({{ movie.year }}){% endif %}</h3>
+          <div class="movie-meta crystal-meta">
+            <span>{{ movie.year|default:"—" }}</span>
+            <span>{{ movie.genre|default:"Uncategorized" }}</span>
+          </div>
         </div>
+
+        <div class="crystal-base" aria-hidden="true"></div>
       </a>
     {% empty %}
       <div class="empty">
