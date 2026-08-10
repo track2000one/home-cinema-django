@@ -1,0 +1,59 @@
+/* REEMA CINEMA — subtle neon glow behind transparent movie cards */
+
+.showcase-grid {
+  overflow: visible;
+}
+
+.showcase-card {
+  isolation: isolate;
+  overflow: visible;
+}
+
+.showcase-card::before {
+  content: "";
+  position: absolute;
+  inset: 8% 7% 10%;
+  z-index: -1;
+  border-radius: 30px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 28% 24%, rgba(62, 214, 255, .34), transparent 44%),
+    radial-gradient(circle at 72% 78%, rgba(155, 83, 255, .26), transparent 48%);
+  filter: blur(28px);
+  opacity: .26;
+  transform: scale(.94);
+  transition: opacity .28s ease, transform .28s ease, filter .28s ease;
+}
+
+.showcase-card:hover::before,
+.showcase-card:focus-visible::before {
+  opacity: .42;
+  transform: scale(1.02);
+  filter: blur(32px);
+}
+
+/* Keep the glass itself transparent; neon belongs behind the card only. */
+.showcase-frame,
+.showcase-card:hover .showcase-frame {
+  background: transparent;
+}
+
+@media (max-width: 700px) {
+  .showcase-card::before {
+    inset: 9% 8% 11%;
+    filter: blur(20px);
+    opacity: .20;
+  }
+
+  .showcase-card:hover::before,
+  .showcase-card:focus-visible::before {
+    opacity: .30;
+    filter: blur(23px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .showcase-card::before {
+    transition: none;
+  }
+}
