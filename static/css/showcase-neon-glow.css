@@ -1,4 +1,4 @@
-/* REEMA CINEMA — subtle neon glow behind transparent movie cards */
+/* REEMA CINEMA — interactive neon glow behind transparent movie cards */
 
 .showcase-grid {
   overflow: visible;
@@ -9,46 +9,92 @@
   overflow: visible;
 }
 
+/*
+   A restrained ambient glow remains behind the card.
+   The stronger neon bloom appears when the user points at the card.
+*/
 .showcase-card::before {
   content: "";
   position: absolute;
-  inset: 8% 7% 10%;
+  inset: 7% 5% 9%;
   z-index: -1;
-  border-radius: 30px;
+  border-radius: 32px;
   pointer-events: none;
   background:
-    radial-gradient(circle at 28% 24%, rgba(62, 214, 255, .34), transparent 44%),
-    radial-gradient(circle at 72% 78%, rgba(155, 83, 255, .26), transparent 48%);
-  filter: blur(28px);
-  opacity: .26;
-  transform: scale(.94);
-  transition: opacity .28s ease, transform .28s ease, filter .28s ease;
+    radial-gradient(circle at 24% 24%, rgba(54, 220, 255, .58), transparent 43%),
+    radial-gradient(circle at 78% 74%, rgba(156, 76, 255, .48), transparent 47%),
+    radial-gradient(circle at 52% 92%, rgba(217, 72, 255, .22), transparent 42%);
+  filter: blur(30px);
+  opacity: .20;
+  transform: scale(.93);
+  transition:
+    opacity .34s cubic-bezier(.2,.75,.25,1),
+    transform .34s cubic-bezier(.2,.75,.25,1),
+    filter .34s ease;
 }
 
-.showcase-card:hover::before,
-.showcase-card:focus-visible::before {
-  opacity: .42;
-  transform: scale(1.02);
-  filter: blur(32px);
-}
-
-/* Keep the glass itself transparent; neon belongs behind the card only. */
+/* Keep the glass itself transparent; the page background stays visible. */
 .showcase-frame,
 .showcase-card:hover .showcase-frame {
   background: transparent;
 }
 
-@media (max-width: 700px) {
-  .showcase-card::before {
-    inset: 9% 8% 11%;
-    filter: blur(20px);
-    opacity: .20;
+/* Keyboard users get the same illuminated state. */
+.showcase-card:focus-visible::before {
+  opacity: .88;
+  transform: scale(1.09);
+  filter: blur(38px);
+}
+
+.showcase-card:focus-visible .showcase-frame {
+  border-color: rgba(157, 229, 255, .48);
+  box-shadow:
+    0 24px 44px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.23),
+    0 0 30px rgba(64, 215, 255, .22),
+    0 0 56px rgba(147, 82, 255, .16);
+}
+
+/* Strong neon bloom is desktop-pointer only, so mobile does not get a sticky hover. */
+@media (hover: hover) and (pointer: fine) {
+  .showcase-card:hover::before {
+    opacity: .90;
+    transform: scale(1.10);
+    filter: blur(38px);
   }
 
-  .showcase-card:hover::before,
-  .showcase-card:focus-visible::before {
-    opacity: .30;
-    filter: blur(23px);
+  .showcase-card:hover .showcase-frame {
+    border-color: rgba(164, 231, 255, .50);
+    box-shadow:
+      0 26px 48px rgba(0,0,0,.38),
+      inset 0 1px 0 rgba(255,255,255,.24),
+      inset 1px 0 0 rgba(255,255,255,.07),
+      inset -1px 0 0 rgba(97, 222, 255, .11),
+      0 0 30px rgba(55, 219, 255, .24),
+      0 0 58px rgba(145, 80, 255, .18),
+      0 0 82px rgba(206, 73, 255, .08);
+  }
+}
+
+/* Touch feedback: brief glow while the card is pressed. */
+.showcase-card:active::before {
+  opacity: .58;
+  transform: scale(1.035);
+  filter: blur(31px);
+}
+
+@media (max-width: 700px) {
+  .showcase-card::before {
+    inset: 8% 6% 10%;
+    filter: blur(21px);
+    opacity: .15;
+  }
+
+  .showcase-card:focus-visible::before,
+  .showcase-card:active::before {
+    opacity: .48;
+    transform: scale(1.045);
+    filter: blur(25px);
   }
 }
 
