@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Movies | REEMA CINEMA{% endblock %}
+
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/crystal-movie-cards.css' %}">
+<link rel="stylesheet" href="{% static 'css/showcase-movie-cards.css' %}">
 {% endblock %}
+
 {% block content %}
 <section class="hero">
   <div class="hero-content">
@@ -49,11 +51,11 @@
   </div>
   {% endif %}
 
-  <div class="movie-grid crystal-grid">
+  <div class="showcase-grid">
     {% for movie in movies %}
-      <a class="movie-card crystal-card" href="{% url 'movies:detail' movie.slug %}" aria-label="Play {{ movie.title }}">
-        <div class="crystal-shell">
-          <div class="poster crystal-poster">
+      <a class="showcase-card" href="{% url 'movies:detail' movie.slug %}" aria-label="Play {{ movie.title }}">
+        <div class="showcase-frame">
+          <div class="showcase-poster">
             {% if movie.poster %}
               <img
                 src="{{ movie.poster.url }}"
@@ -62,30 +64,36 @@
                 decoding="async"
               >
             {% else %}
-              <div class="poster-empty">
+              <div class="showcase-empty">
                 <span>▶</span>
                 <small>No poster</small>
               </div>
             {% endif %}
-            <div class="crystal-play" aria-hidden="true">▶</div>
+
+            <div class="showcase-overlay" aria-hidden="true"></div>
+            <div class="showcase-play" aria-hidden="true">▶</div>
+
+            {% if movie.year %}
+              <span class="showcase-badge">{{ movie.year }}</span>
+            {% endif %}
           </div>
 
-          <div class="crystal-info">
-            <h3 title="{{ movie.title }}">{{ movie.title }}{% if movie.year %} ({{ movie.year }}){% endif %}</h3>
-            <div class="movie-meta crystal-meta">
+          <div class="showcase-info">
+            <h3 title="{{ movie.title }}">{{ movie.title }}</h3>
+            <div class="showcase-meta">
               <span>{{ movie.year|default:"—" }}</span>
               <span>{{ movie.genre|default:"Uncategorized" }}</span>
             </div>
           </div>
         </div>
-
-        <div class="crystal-base" aria-hidden="true"></div>
       </a>
     {% empty %}
       <div class="empty">
         <h3>No movies found</h3>
         <p>{% if query or selected_genre %}Try changing or clearing your filters.{% else %}Add movies from the admin panel to start your library.{% endif %}</p>
-        {% if query or selected_genre %}<a class="empty-action" href="{% url 'movies:library' %}">Show all movies</a>{% endif %}
+        {% if query or selected_genre %}
+          <a class="empty-action" href="{% url 'movies:library' %}">Show all movies</a>
+        {% endif %}
       </div>
     {% endfor %}
   </div>
