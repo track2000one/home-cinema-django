@@ -1,0 +1,299 @@
+/* ==========================================================
+   REEMA CINEMA — Modern Showcase Movie Cards
+   Clean, premium, poster-first design
+   ========================================================== */
+
+.showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 30px 22px;
+  align-items: start;
+}
+
+.showcase-card {
+  position: relative;
+  display: block;
+  min-width: 0;
+  color: #fff;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .25s ease;
+}
+
+.showcase-card:hover {
+  transform: translateY(-6px);
+}
+
+.showcase-card:active {
+  transform: translateY(-2px) scale(.992);
+}
+
+.showcase-frame {
+  position: relative;
+  overflow: hidden;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.025)),
+    linear-gradient(135deg, rgba(111,169,255,.13), rgba(255,255,255,.035) 38%, rgba(167,106,255,.08)),
+    rgba(14,18,28,.84);
+  box-shadow:
+    0 18px 36px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.09),
+    0 0 26px rgba(98,132,255,.065);
+  -webkit-backdrop-filter: blur(14px) saturate(135%);
+  backdrop-filter: blur(14px) saturate(135%);
+  transition: border-color .25s ease, box-shadow .25s ease, background .25s ease;
+}
+
+.showcase-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(140deg, rgba(255,255,255,.20), transparent 18%, transparent 78%, rgba(145,210,255,.09)),
+    radial-gradient(circle at top left, rgba(255,255,255,.10), transparent 28%);
+  opacity: .82;
+}
+
+.showcase-card:hover .showcase-frame {
+  border-color: rgba(174,219,255,.19);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.135), rgba(255,255,255,.03)),
+    linear-gradient(135deg, rgba(111,169,255,.17), rgba(255,255,255,.04) 38%, rgba(167,106,255,.10)),
+    rgba(14,18,28,.88);
+  box-shadow:
+    0 24px 46px rgba(0,0,0,.42),
+    inset 0 1px 0 rgba(255,255,255,.11),
+    0 0 30px rgba(98,132,255,.10);
+}
+
+.showcase-poster {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  aspect-ratio: 2 / 3;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+  background: #0d1119;
+  box-shadow:
+    0 10px 24px rgba(0,0,0,.30),
+    inset 0 1px 0 rgba(255,255,255,.10);
+}
+
+.showcase-poster img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transform: scale(1.001);
+  transition: transform .38s cubic-bezier(.2,.75,.25,1), filter .28s ease;
+}
+
+.showcase-card:hover .showcase-poster img {
+  transform: scale(1.045);
+  filter: saturate(1.055) contrast(1.025);
+}
+
+.showcase-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(6,10,18,.54) 0%, rgba(6,10,18,.08) 31%, transparent 55%),
+    linear-gradient(to bottom, rgba(255,255,255,.07), transparent 15%);
+}
+
+.showcase-play {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 4;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.30);
+  border-radius: 50%;
+  color: #0a1220;
+  background: linear-gradient(135deg, #ffffff, #d9eeff);
+  box-shadow:
+    0 10px 22px rgba(0,0,0,.35),
+    0 0 18px rgba(124,204,255,.15);
+  font-size: 14px;
+  font-weight: 900;
+  opacity: 0;
+  transform: translateY(8px) scale(.92);
+  transition: opacity .22s ease, transform .22s ease;
+}
+
+.showcase-card:hover .showcase-play,
+.showcase-card:focus-visible .showcase-play {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.showcase-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 4;
+  padding: 6px 10px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 999px;
+  color: #eef8ff;
+  background: rgba(7,12,20,.56);
+  box-shadow: 0 6px 14px rgba(0,0,0,.20);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.showcase-info {
+  position: relative;
+  z-index: 2;
+  padding: 14px 8px 7px;
+}
+
+.showcase-info h3 {
+  margin: 0 0 8px;
+  overflow: hidden;
+  color: #f8fbff;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.28;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+
+.showcase-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  color: rgba(223,233,245,.76);
+  font-size: 12px;
+}
+
+.showcase-meta span + span::before {
+  content: "|";
+  margin-right: 10px;
+  color: rgba(255,255,255,.22);
+}
+
+.showcase-empty {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-content: center;
+  gap: 8px;
+  color: rgba(255,255,255,.72);
+  background: linear-gradient(180deg, #161d28, #0f141c);
+  text-align: center;
+}
+
+.showcase-empty span {
+  font-size: 22px;
+}
+
+.showcase-empty small {
+  font-size: 13px;
+}
+
+.showcase-card:focus-visible {
+  outline: 2px solid #7bdcff;
+  outline-offset: 4px;
+  border-radius: 24px;
+}
+
+@media (max-width: 1100px) {
+  .showcase-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 26px 18px;
+  }
+
+  .showcase-info h3 {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 700px) {
+  .showcase-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 12px;
+  }
+
+  .showcase-frame {
+    padding: 7px;
+    border-radius: 18px;
+  }
+
+  .showcase-poster {
+    border-radius: 13px;
+  }
+
+  .showcase-info {
+    padding: 10px 4px 4px;
+  }
+
+  .showcase-info h3 {
+    margin-bottom: 5px;
+    font-size: 13px;
+  }
+
+  .showcase-meta {
+    gap: 4px 6px;
+    font-size: 10px;
+  }
+
+  .showcase-meta span + span::before {
+    margin-right: 6px;
+  }
+
+  .showcase-badge {
+    top: 8px;
+    left: 8px;
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+
+  .showcase-play {
+    right: 8px;
+    bottom: 8px;
+    width: 34px;
+    height: 34px;
+    opacity: .94;
+    transform: none;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 390px) {
+  .showcase-grid {
+    gap: 15px 9px;
+  }
+
+  .showcase-info h3 {
+    font-size: 12px;
+  }
+
+  .showcase-meta {
+    font-size: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .showcase-card,
+  .showcase-frame,
+  .showcase-poster img,
+  .showcase-play {
+    transition: none;
+  }
+}
